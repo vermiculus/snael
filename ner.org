@@ -157,7 +157,7 @@ best of our ability, the English language using a CFG.
 #+BEGIN_SRC python :tangle "./src/snael.py"
   grammar = nltk.parse_cfg('''
 #+END_SRC
-
+   
 There are four types of sentences:
  - Declaratives :: Bill hugged the cat.
  - Imperatives :: Hug the cat.
@@ -173,8 +173,21 @@ These can be potentially expressed as the following top-level rules:
   S -> Questions Auxiliary NounPhrase VerbPhrase  # Interrogative
 #+END_SRC
 
-Unfortunately for us, English is context-sensitive and can't be fully
-described with a context-free grammar.  See Higginbotham.
+** Doomed From the Start
+Unfortunately for us, English is not a regular language.  There is no
+way we can hope to encapsulate every possible English sentence using a
+regular expression---the parsing of English sentences is still an
+active area of research.  English is not even context-free and can't
+even be fully described with a context-free grammar (Higginbotham).
+However, regular expressions are the simplest to understand and to
+implement, so they are used in this research.  This is why I assume
+the unreasonably ideal that NLTK is perfect---without this assumption,
+I'd be in waters I know little to nothing about.
+
+There are great shortcomings of using regular expressions.  It is
+difficult to distinguish actualy subject-verb-object sequences from
+the more common (subject-prepositional)-verb-(object-prepositional)
+phrases.  
 
 #+BEGIN_SRC python :tangle "./src/snael.py"
   grammar = 'NP: {<DT>?<JJ>*<NN>}'
