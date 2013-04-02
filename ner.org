@@ -7,7 +7,26 @@
 - What is NER?
 - Why is it so hard?
   - Aliases
-** Options
+** What is Natural Language Processing?
+** What is Named-Entity Recognition?
+** What is Social Network Analysis?
+** Why are these things so hard?
+** How can this problem be solved?
+*** Preprocess
+Strip unessential information.
+*** First Pass
+Create lexicon.
+pos-tag every sentence in lexicon, recording its use in the sentence and creating a dictionary.
+write out cfg for this text, using a standard cfg for branches and the dictionary for terminals.
+*** Second Pass
+Use CFG to parse and chunk each sentence in the text.
+Where no human subject is used (ie no John, he, they, etc.), discard sentence.
+Reduce sentence to basic meaning.
+Record relationship.
+*** Postprocess
+Determine aliases and combine accordingly.
+Construct graph.
+Output graph to text file.
 * Parsing the Text
 ** From a File into Memory
 In order to work with any text, it must first be loaded into memory so the computer can work with it.
@@ -119,7 +138,20 @@ Let us define, to the best of our ability, the English language using a CFG.
 
 ** More Than Your Grade-School Grammar
 NLTK has pretty wonderful support for parts-of-speech tagging and CFG parsing, where the former is not too reliable.  
+There are advantages and disadvantages to using each.
+Regular expressions are by default less powerful (since they define a smaller class of languages), but they can define tokens by part-of-speech, as in the regular expression =<N.*>+<V.*><N.*>*=.
+This expression would describe a sentence that begins with one or more nouns (proper or otherwise), followed by a verb in any tense, followed by zero or more nouns.
+I mentioned that this approach is by default less powerful than using a context-free grammar.
+Using regular expressions, it is impossible to recursively define a phrase such as a prepositional phrase, for example.
+A prepositional phrase is any phrase in the sentence which begins with a preposition, followed by a noun, and optionally followed by another prepositional phrase.
 
+For example, consider the sentence, "Fetch the hose under the porch behind the house."
+There is no way to describe this using a proper regular expression.
+However, context-free grammars can describe this scenario using a /production rule/ for prepositional phrases:
+
+#+BEGIN_EXAMPLE
+Prepositional_Phrase -> <PP><DT>?<N.*><Prepositional_Phrase>
+#+END_EXAMPLE
 
 * Recognizing Names
 ** What's in a Name?
