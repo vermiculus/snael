@@ -10,31 +10,27 @@
 ** Options
 * Parsing the Text
 ** From a File into Memory
-In order to work with any text, it must first be loaded into memory so
-the computer can work with it.  This is almost trivial in Python.
+In order to work with any text, it must first be loaded into memory so the computer can work with it.
+This is almost trivial in Python.
 
 First, we need to determine the path to the text we wish to analyse.
-Because of its wealth of character diversity, we are going to use the
-text of Les Miserables.  This text is stored with this file under a
-directory called =texts/=.  So, let's create a variable to store this
-information called =text_filepath=.
+Because of its wealth of character diversity, we are going to use the text of Les Miserables.
+This text is stored with this file under a directory called =texts/=.
+So, let's create a variable to store this information called =text_filepath=.
 
 #+BEGIN_SRC python :tangle "./src/snael.py"
   text_filepath = './texts/les-miserables.text'
 #+END_SRC
 
-Now we can use this file path to read in the raw text.  Note that we
-do not need write access to the file---only read access. Since the
-text will almost certainly use some sort of accent characters, we'll
-make sure Python uses the UTF-8 encoding.
+Now we can use this file path to read in the raw text.
+Note that we do not need write access to the file---only read access.
+Since the text will almost certainly use some sort of accent characters, we'll make sure Python uses the UTF-8 encoding.
 
 #+BEGIN_SRC python :tangle "./src/snael.py"
   text_file = open(text_filepath, 'rU')
 #+END_SRC
 
-Now that we have an open file to work with, we can read in the entire
-text of the file into a variable we will be working with extensively
-from here on out: =text=.
+Now that we have an open file to work with, we can read in the entire text of the file into a variable we will be working with extensively from here on out: =text=.
 
 #+BEGIN_SRC python :tangle "./src/snael.py"
   text = text_file.read()
@@ -46,21 +42,15 @@ We are now done with the file, so we will close it and move on.
   text_file.close()
 #+END_SRC
 ** Into Chapters and Paragraphs
-Hopefully, I can get this to work.  It would be good to be able to
-parse it into a higher-level logical structure than a sentence.
+Hopefully, I can get this to work.
+It would be good to be able to parse it into a higher-level logical structure than a sentence.
 ** Into Sentences
-In the previous section, we took a file stored on disk and pulled it
-into memory---a fairly standard an unexciting procedure.  Next, we are
-going to finally start to avail of a very important library for this
-research: the [[About the NLTK][Natural Language Toolkit]] (NLTK).  Using NLTK, we're
-going to process =text= and turn it into a form that NLTK can
-natively work with.  First, though, we must first turn =text=, which
-is at this point a mindless sequence of lifeless characters, into a
-collection (more properly a =list=) of sentences.  Keep in mind that
-this is still low-level processing, and we aren't doing anything
-too fancy yet.  This could be done with only a few extra lines of
-Python, but since we are using this library anyway, why reinvent the
-wheel?
+In the previous section, we took a file stored on disk and pulled it into memory---a fairly standard an unexciting procedure.
+Next, we are going to finally start to avail of a very important library for this research: the [[About the NLTK][Natural Language Toolkit]] (NLTK).
+Using NLTK, we're going to process =text= and turn it into a form that NLTK can natively work with.
+First, though, we must first turn =text=, which is at this point a mindless sequence of lifeless characters, into a collection (more properly a =list=) of sentences.
+Keep in mind that this is still low-level processing, and we aren't doing anything too fancy yet.
+This could be done with only a few extra lines of Python, but since we are using this library anyway, why reinvent the wheel?
 
 Speaking of using the library, we must import it before we can use it.
 
@@ -74,23 +64,17 @@ Easy, right?  Now, let's parse =text= into sentences.
   sentences = nltk.sent_tokenize(text)
 #+END_SRC
 ** Into Words and Into Position
-Now, =sentences= contains =text= in a form that accurately represents
-the distinctions of sentences in the text.  What we need to do now is
-to recognize the individual words of each sentence and determine
-their correct positions in the sentence.  For example, the sentence
+Now, =sentences= contains =text= in a form that accurately represents the distinctions of sentences in the text.
+What we need to do now is to recognize the individual words of each sentence and determine their correct positions in the sentence.
+For example, the sentence
 
 #+BEGIN_EXAMPLE
   John gave Caitlyn a pretty flower.
 #+END_EXAMPLE
 
-has a distinct syntactical structure: =John=, the subject, =gave=, a
-transitive verb, =Caitlyn=, the indirect object, =a flower=, the
-direct object (with a determiner), and =pretty=, an adjective upon =a
-flower=.  With any single sentence, NLTK can not only tokenize it into
-individual words (taking into account contractions, etc.), but also
-/tag/ these words with their appropriate functions in the sentence
-using a set of keys described in its documentation.  For example, the
-above sentence would be parsed as the tree structure below.
+has a distinct syntactical structure: =John=, the subject, =gave=, a transitive verb, =Caitlyn=, the indirect object, =a flower=, the direct object (with a determiner), and =pretty=, an adjective upon =a flower=.
+With any single sentence, NLTK can not only tokenize it into individual words (taking into account contractions, etc.), but also /tag/ these words with their appropriate functions in the sentence using a set of keys described in its documentation.
+For example, the above sentence would be parsed as the tree structure below.
 
 #+BEGIN_EXAMPLE
   (S
@@ -103,14 +87,10 @@ above sentence would be parsed as the tree structure below.
     ./.)
 #+END_EXAMPLE
 
-As English sentences can be arbitrarily complex (and [[http://en.wikipedia.org/wiki/Buffalo_buffalo_Buffalo_buffalo_buffalo_buffalo_Buffalo_buffalo][absurd]]), NLTK may
-very well trip on more involved sentences, but that is separate
-research.  We will unreasonally assume that NLTK is perfect to its
-specifications.
+As English sentences can be arbitrarily complex (and [[http://en.wikipedia.org/wiki/Buffalo_buffalo_Buffalo_buffalo_buffalo_buffalo_Buffalo_buffalo][absurd]]), NLTK may very well trip on more involved sentences, but that is separate research.
+We will unreasonally assume that NLTK is perfect to its specifications.
 
-Let us now /finally/ instruct Python to first tokenize each sentence
-into words and then tag each and every sentence in =sentences= using a
-list comprehension.
+Let us now /finally/ instruct Python to first tokenize each sentence into words and then tag each and every sentence in =sentences= using a list comprehension.
 
 #+BEGIN_SRC python :tangle "./src/snael.py"
   tokenized_sentences = [nltk.word_tokenize(sentence) for sentence in sentences]
@@ -118,86 +98,28 @@ list comprehension.
 #+END_SRC
 
 * Determining Actors and Objects
-Consider for a moment the (most likely) difference in syntactical
-complexity between a five-year-old speaker and a famed author of a
-classic.  The five-year-old (say, Billy) will not have the same
-complex sentence structures as Victor Hugo, save unlikely genius.
-However, if you stick them both in front of a computer that's been
-instructed to hold a faux-meaningful conversation with you, Billy is
-likely to have better luck in communicating.  Notice that Billy is
-probably going to speak to the computer in such simple phrases as "/I
-hugged my cat,/" while Victor would be more likely to say something a
-little more dramatic, such as "/On the fourth day of June, 1254, Monty
-Python mustered up his scarce courage and strength to do battle with
-the great King Arthur of Britain./"
+Consider for a moment the (most likely) difference in syntactical complexity between a five-year-old speaker and a famed author of a classic.
+The five-year-old (say, Billy) will not have the same complex sentence structures as Victor Hugo, save unlikely genius. However, if you stick them both in front of a computer that's been instructed to hold a faux-meaningful conversation with you, Billy is likely to have better luck in communicating.
+Notice that Billy is probably going to speak to the computer in such simple phrases as "/I hugged my cat,/" while Victor would be more likely to say something a little more dramatic, such as "/On the fourth day of June, 1254, Monty Python mustered up his scarce courage and strength to do battle with the great King Arthur of Britain./"
+At its most basic, English is (or is /usually/) constructed as /Subject/-/Verb/.
 
-At its most basic, English is (or is /usually/) constructed as
-/Subject/-/Verb/-/Object/.  As such, Billy's sentiment could be
-(slightly) reduced to "/I hugged cat,/" while Victor's could be
-drastically reduced to "Monty Python battle King Arthur."  While this
-strips almost all prose from Victor's masterfully crafted sentiment,
-it is far easier for a humble computer (not to mention myself) to
-understand.  The aim of this research is to simplify the text to this
-point and quantify the social networks that become apparent through
-the text.
+As such, Billy's sentiment could be (slightly) reduced to "/I hug,/" while Victor's could be drastically reduced to "Monty Python battle."
+While this strips almost all prose and purpose from Victor's masterfully crafted sentiment, it is far easier for a humble computer (not to mention myself) to understand.
+The aim of this research is to simplify the text to this point and quantify the social networks that become apparent through the text.
 
-Before we get there, though, there are major hurdles that must be
-overcome.  First of all, English sentences are hardly ever as simple
-as Billy's.  While they are also usually not as grandiose as Victor's
-contribution, that level of complexity is much more typical.  To boil
-down each sentence into something more basic, we'll have to describe
-to NLTK what we are looking for using a grammar, specifically a
-/context-free grammar/.  Succinctly, a context-free grammar (or CFG)
-describes a /language/ as a set of rules starting from the sentence
-and decomposing itself into smaller and smaller parts until the
-individual words are reached.  Fortunately, NLTK has rather intuitive
-support for these arguably complex things.  Let us define, to the
-best of our ability, the English language using a CFG.
-** Grammar
-#+BEGIN_SRC python :tangle "./src/snael.py"
-  grammar = nltk.parse_cfg('''
-#+END_SRC
-   
-There are four types of sentences:
- - Declaratives :: Bill hugged the cat.
- - Imperatives :: Hug the cat.
- - Affirmatives :: Did Bill hug a cat?
- - Interrogatives :: Which cat did Bill hug?
+Before we get there, though, there are major hurdles that must be overcome.
+First of all, English sentences are hardly ever as simple as Billy's.
+While they are also usually not as grandiose as Victor's contribution, that level of complexity is much more typical.
+To boil down each sentence into something more basic, we'll have to describe to NLTK what we are looking for using a grammar, specifically a /context-free grammar/.
+Succinctly, a context-free grammar (or CFG) describes a /language/ as a set of rules starting from the sentence and decomposing itself into smaller and smaller parts until the individual words (/terminals/) are reached.
 
-These can be potentially expressed as the following top-level rules:
+Fortunately, NLTK has rather intuitive support for these arguably complex things.
+Let us define, to the best of our ability, the English language using a CFG.
+(Note that this is technically not possible; see Higginbotham.)
 
-#+BEGIN_SRC python :tangle "./src/snael.py"
-  S -> NounPhrase VerbPhrase                      # Declarative
-  S -> VerbPhrase                                 # Imperative
-  S -> Auxiliary NounPhrase VerbPhrase            # Affirmative
-  S -> Questions Auxiliary NounPhrase VerbPhrase  # Interrogative
-#+END_SRC
+** More Than Your Grade-School Grammar
+NLTK has pretty wonderful support for parts-of-speech tagging and CFG parsing, where the former is not too reliable.  
 
-** Doomed From the Start
-Unfortunately for us, English is not a regular language.  There is no
-way we can hope to encapsulate every possible English sentence using a
-regular expression---the parsing of English sentences is still an
-active area of research.  English is not even context-free and can't
-even be fully described with a context-free grammar (Higginbotham).
-However, regular expressions are the simplest to understand and to
-implement, so they are used in this research.  This is why I assume
-the unreasonably ideal that NLTK is perfect---without this assumption,
-I'd be in waters I know little to nothing about.
-
-There are great shortcomings of using regular expressions.  It is
-difficult to distinguish actualy subject-verb-object sequences from
-the more common (subject-prepositional)-verb-(object-prepositional)
-phrases.  
-
-#+BEGIN_SRC python :tangle "./src/snael.py"
-  grammar = 'NP: {<DT>?<JJ>*<NN>}'
-#+END_SRC
-
-This regular expression matches an optional determiner (it can have
-the words /a/, /an/, /the/, or it could not) followed by any number
-of adjectives followed by a noun, generating what is called a /noun
-phrase/.  Thus, /the little yellow dog/ is a noun phrase, /the cat/
-is a noun phrase, etc.
 
 * Recognizing Names
 ** What's in a Name?
