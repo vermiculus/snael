@@ -1,0 +1,123 @@
+* What are we Studying?
+We are studying the social networks within a text stored in the
+following file:
+
+#+BEGIN_SRC python :tangle "src/snael.py"
+  FILE_NAME = './text/simple.txt'
+#+END_SRC
+
+* Wait, what is a Network?
+
+#+BEGIN_SRC python :tangle "src/snael.py"
+  class Network:
+      def __init__(self):
+          self.associations = dict()
+      def addConnection(self, entityA, entityB):
+          if entityA not in self.associations:
+              self.associations[entityA]=dict()
+          if entityB not in self.associations:
+              self.associations[entityB]=dict()
+  
+          if entityA not in self.associations[entityB]:
+              self.associations[entityB][entityA] = 0
+          if entityB not in self.associations[entityA]:
+              self.associations[entityA][entityB] = 0
+  
+          self.associations[entityA][entityB] += 1
+          self.associations[entityB][entityA] += 1
+#+END_SRC
+
+* Load Text
+#+BEGIN_SRC python :tanlge "src/snael.py"
+  with open(FILENAME, 'r') as f:
+      print '>reading file'
+      raw = ' '.join(f.readlines())
+      print '>file read'
+      
+
+#+END_SRC
+
+* Clean Text
+#+BEGIN_SRC python :tangle "src/snael.py"
+  def clean(text):
+      """Attempts to extract the raw work from a Project Gutenberg text"""
+  
+      ###
+      # Really, it should just be the text from the get-go.
+      # Gutenberg doesn't allow automated access, anyway.
+      ###
+  
+      start_text = '*** START OF THIS PROJECT GUTENBERG EBOOK'
+      end_text   = '*** END OF THIS PROJECT GUTENBERG EBOOK'
+      
+      if start_text in text:
+          start = raw.find(start_text)
+          start = raw.find('\n', start)
+          text = text[start:]
+  
+      if end_text in text:
+          text = text[:text.find(end_text)-1]
+  
+      return text
+
+  #text = clean(text)
+#+END_SRC
+
+* Tokenize Text
+#+BEGIN_SRC python :tangle "./src/snael.py"
+  print '>importing nltk'
+  import nltk
+  print '>tokenizing'
+  tokens = nltk.sent_tokenize(raw)
+  tokens = [t.replace('\n',' ').replace('  ',' ') \
+            for t in tokens if t is not '.']
+  # removes newlines, ellipses, and double spaces
+  
+  print '>converting to nltk.Text'
+  text = nltk.Text(tokens)
+  
+  # raw =' '.join([line[:-1] if line[-1]=='\n' else line\
+  #          for line in f.readlines()])
+#+END_SRC
+
+* Create List of Names
+
+We need to make sure that we have a list of all names.  Let's just
+create a pipeline to tokenize, tag, and chunk a text:
+
+#+BEGIN_SRC python :tangle "./src/snael.py"
+  entities = lambda text: nltk.ne_chunk(nltk.pos_tag(nltk.word_tokenize(text)))
+#+END_SRC
+
+#+BEGIN_SRC python :tangle "src/snael.py"
+  names = ['Fabantou', 'Leblanc', 'Jondrette']
+#  text  = list() #of sentences, lines, or whatever
+
+  def list2dict(l,dv=set()):
+      d=dict()
+      for e in l:
+          d[e]=dv
+      return d
+#+END_SRC
+
+* Resolve Anaphora (antecedents)
+
+* Find Occurances
+First we need to prepare a data structure for the occurances to live
+in.  The obvious choice is a dictionary, with names as keys and lists
+of locations as values.  So, to create this dictionary:
+
+#+BEGIN_SRC python :tangle "src/snael.py"
+  occurances = dict()
+  for name in names:
+      occurances[name] = list()
+#+END_SRC
+
+Now find occurances and store them.
+
+#+BEGIN_SRC python :tangle "src/snael.py"
+  for name in names.keys():
+      for sentence in text:
+          if name in sentence:
+              names[name].append(text.index(sentence))
+#+END_SRC
