@@ -33,34 +33,6 @@ following file:
       print '>reading file'
       raw = ' '.join(f.readlines())
       print '>file read'
-      
-
-#+END_SRC
-
-* Clean Text
-#+BEGIN_SRC python :tangle "src/snael.py"
-  def clean(text):
-      """Attempts to extract the raw work from a Project Gutenberg text"""
-  
-      ###
-      # Really, it should just be the text from the get-go.
-      # Gutenberg doesn't allow automated access, anyway.
-      ###
-  
-      start_text = '*** START OF THIS PROJECT GUTENBERG EBOOK'
-      end_text   = '*** END OF THIS PROJECT GUTENBERG EBOOK'
-      
-      if start_text in text:
-          start = raw.find(start_text)
-          start = raw.find('\n', start)
-          text = text[start:]
-  
-      if end_text in text:
-          text = text[:text.find(end_text)-1]
-  
-      return text
-
-  #text = clean(text)
 #+END_SRC
 
 * Tokenize Text
