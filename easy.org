@@ -1,13 +1,29 @@
 * What are we Studying?
 We are studying the social networks within a text stored in the
-following file:
+following file, served from [[http://fileserver.booktrust.org.uk/usr/library/documents/bbc-nssa-2009/other_peoples_gods.pdf][BookTrust.org]] on [2013-04-08 Mon].  The
+file has been edited from its original form, but the text has not been
+altered.
+
+The work is entitled /Other People's Gods/ and was written by Naomi
+Alderman, winning the 2009 BBC National Short Story Award.
 
 #+BEGIN_SRC python :tangle "src/snael.py"
   FILE_NAME = './text/simple.txt'
 #+END_SRC
 
 * Wait, what is a Network?
+A network is a graph---it is a collection of entities (usually called
+'nodes') that are connected to each other in certain ways.
 
+For the purposes of this research, the following =Network= class
+defines a consistent interface for accumulating a weighted graph.
+
+A =Network= has exactly one field, a dictionary of associations.  The
+dictionary uses entities (must be hashable, e.g. strings) as keys and
+one more dictionary as values.  This inner dictionary maps entities
+onto weights.  Care has been taken to ensure that new entities are
+appropriately handled and connections are two-way (adding a connection
+from A->B is the same as adding a connection from B->A).
 #+BEGIN_SRC python :tangle "src/snael.py"
   class Network:
       def __init__(self):
@@ -28,10 +44,13 @@ following file:
 #+END_SRC
 
 * Load Text
-#+BEGIN_SRC python :tanlge "src/snael.py"
+Obviously, the first thing of significance we do is load the file into
+memory.  This snippet of code opens =FILENAME= as read-only and loads
+the full contents into =raw=.
+#+BEGIN_SRC python :tangle "src/snael.py"
   with open(FILENAME, 'r') as f:
       print '>reading file'
-      raw = ' '.join(f.readlines())
+      raw = ''.join(f.readlines())
       print '>file read'
 #+END_SRC
 
@@ -53,7 +72,6 @@ following file:
 #+END_SRC
 
 * Create List of Names
-
 We need to make sure that we have a list of all names.  Let's just
 create a pipeline to tokenize, tag, and chunk a text:
 
