@@ -82,11 +82,13 @@ We need to make sure that we have a list of all names.  Let's just
 create a pipeline to tokenize, tag, and chunk a text:
 
 #+BEGIN_SRC python :tangle "./src/snael.py"
-    entities = lambda text: \
-               nltk.ne_chunk( \
-                nltk.pos_tag( \
-                 nltk.word_tokenize(text)), \
-               binary = True)
+  grammer = r'NAME: {<NNP>+(<DT>?<NNP>+)?}'
+  ne_chunker = nltk.RegexpParser(grammer)
+  entities = lambda text: \
+             ne_chunker.parse( \
+              nltk.pos_tag( \
+               nltk.word_tokenize(text)), \
+             binary = True)
 #+END_SRC
 
 Switching on the =binary= option tells NLTK to enable only one type of
@@ -166,7 +168,9 @@ Creative~Commons~BY-SA.  The original code was written by
 #+BEGIN_SRC python :tangle "./src/snael.py"
   progress_bar_width = 70
   progress_bar_progress = 0
-  
+
+  import sys
+
   # Write out the bar
   sys.stdout.write("[%s]" % (" " * progress_bar_width))
   
@@ -193,10 +197,10 @@ write), and then increment our progress through the progress bar.
 #+BEGIN_SRC python :tangle "./src/snael.py"
   tagged_sentences = list()
   
-  current_text_index = 0  
+  current_text_index = 0
 
   for sentence in text:
-      tagged_sentence += entities(sentence)
+      tagged_sentences.append(entities(sentence))
       current_text_index += 1
       if float(current_text_index) / float(len(text)) > \
          float(progress_bar_progress) / float(progress_bar_width):
