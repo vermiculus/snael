@@ -185,9 +185,10 @@ the list of =tagged_senteces= with the =entities= of the =sentence=.
 We increment our progress through the text, and then test to see if we
 have crossed into the next level of the progress bar.  (We do this by
 comparing the ratios between =current_text_index= : =len(text)= and
-=progress_bar=progress= : =progress_bar_width=.)  If we need to, we
-write a character to =stdout=, flush the buffer (forcing the write),
-and then increment our progress through the progress bar.
+=progress_bar=progress= : =progress_bar_width=.  Each value is
+interpreted as a =float= to bypass integer division.)  If we need to,
+we write a character to =stdout=, flush the buffer (forcing the
+write), and then increment our progress through the progress bar.
 
 #+BEGIN_SRC python :tangle "./src/snael.py"
   tagged_sentences = list()
@@ -203,6 +204,9 @@ and then increment our progress through the progress bar.
           sys.stdout.flush()
           progress_bar_progress += 1
 #+END_SRC
+
+TODO: sift out =NE= items in the =Tree= and then construct the list of
+names.  May need to alter use of =Network= to allow for aliases.
 
 #+BEGIN_SRC python :tangle "./src/snael.py"
   names = ['Fabantou', 'Leblanc', 'Jondrette']
