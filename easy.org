@@ -1,3 +1,11 @@
+#+Title: SNAEL: A Super-Slow Social Network Analyser for English Literature
+#+Author: Sean Allred
+#+Date: [2013-04-20 Sat]
+
+#+BEGIN_SRC python :tangle "./src/snael.py"
+  print "Welcome to SNAEL, version 0.2"
+#+END_SRC
+
 * What are we Studying?
 We are studying the social networks within a text stored in the
 following file, served from [[http://fileserver.booktrust.org.uk/usr/library/documents/bbc-nssa-2009/other_peoples_gods.pdf][BookTrust.org]] on [2013-04-08 Mon].  The
@@ -5,10 +13,11 @@ file has been edited from its original form, but the text has not been
 altered.
 
 The work is entitled /Other People's Gods/ and was written by Naomi
-Alderman, winning the 2009 BBC National Short Story Award.
+Alderman, winning the 2009 BBC National Short Story Award, and is
+freely available online.
 
-#+BEGIN_SRC python :tangle "src/snael.py"
-  FILE_NAME = './text/simple.txt'
+#+BEGIN_SRC python :tangle "./src/snael.py"
+  FILE_NAME = '../text/simple.txt'
 #+END_SRC
 
 * Wait, what is a Network?
@@ -24,7 +33,7 @@ one more dictionary as values.  This inner dictionary maps entities
 onto weights.  Care has been taken to ensure that new entities are
 appropriately handled and connections are two-way (adding a connection
 from A->B is the same as adding a connection from B->A).
-#+BEGIN_SRC python :tangle "src/snael.py"
+#+BEGIN_SRC python :tangle "./src/snael.py"
   class Network:
       def __init__(self):
           self.associations = dict()
@@ -45,10 +54,10 @@ from A->B is the same as adding a connection from B->A).
 
 * Load Text
 Obviously, the first thing of significance we do is load the file into
-memory.  This snippet of code opens =FILENAME= as read-only and loads
+memory.  This snippet of code opens =FILE_NAME= as read-only and loads
 the full contents into =raw=.
-#+BEGIN_SRC python :tangle "src/snael.py"
-  with open(FILENAME, 'r') as f:
+#+BEGIN_SRC python :tangle "./src/snael.py"
+  with open(FILE_NAME, 'r') as f:
       print '>reading file'
       raw = ''.join(f.readlines())
       print '>file read'
@@ -62,13 +71,9 @@ the full contents into =raw=.
   tokens = nltk.sent_tokenize(raw)
   tokens = [t.replace('\n',' ').replace('  ',' ') \
             for t in tokens if t is not '.']
-  # removes newlines, ellipses, and double spaces
   
   print '>converting to nltk.Text'
   text = nltk.Text(tokens)
-  
-  # raw =' '.join([line[:-1] if line[-1]=='\n' else line\
-  #          for line in f.readlines()])
 #+END_SRC
 
 * Create List of Names
@@ -79,9 +84,9 @@ create a pipeline to tokenize, tag, and chunk a text:
   entities = lambda text: nltk.ne_chunk(nltk.pos_tag(nltk.word_tokenize(text)))
 #+END_SRC
 
-#+BEGIN_SRC python :tangle "src/snael.py"
+#+BEGIN_SRC python :tangle "./src/snael.py"
   names = ['Fabantou', 'Leblanc', 'Jondrette']
-#  text  = list() #of sentences, lines, or whatever
+  #  text  = list() #of sentences, lines, or whatever
 
   def list2dict(l,dv=set()):
       d=dict()
@@ -97,7 +102,7 @@ First we need to prepare a data structure for the occurances to live
 in.  The obvious choice is a dictionary, with names as keys and lists
 of locations as values.  So, to create this dictionary:
 
-#+BEGIN_SRC python :tangle "src/snael.py"
+#+BEGIN_SRC python :tangle "./src/snael.py"
   occurances = dict()
   for name in names:
       occurances[name] = list()
@@ -105,8 +110,8 @@ of locations as values.  So, to create this dictionary:
 
 Now find occurances and store them.
 
-#+BEGIN_SRC python :tangle "src/snael.py"
-  for name in names.keys():
+#+BEGIN_SRC python :tangle "./src/snael.py"
+  for name in occurances.keys():
       for sentence in text:
           if name in sentence:
               names[name].append(text.index(sentence))

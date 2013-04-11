@@ -1,15 +1,6 @@
-*~
-src/
-*.pdf
-*.py
-*.out
-*.bbl
-*.log
-*.aux
-*.bcf
-*.blg
-*.dvi
-*.run.xml
-/figs/jgc.eps
-/nlp.org
-/text/small
+# Ignore everything...
+*
+
+# but these extensions.
+!*.org
+!*.txt
