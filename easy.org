@@ -1,4 +1,4 @@
-#+Title: SNAEL: A Super-Slow Social Network Analyser for English Literature
+#+Title: SNAEL: A Social Network Analyzer for English Literature
 #+Author: Sean Allred
 #+Date: [2013-04-20 Sat]
 
@@ -14,7 +14,7 @@ altered.
 
 The work is entitled /Other People's Gods/ and was written by Naomi
 Alderman, winning the 2009 BBC National Short Story Award, and is
-freely available online.
+freely available on-line.
 
 #+BEGIN_SRC python :tangle "./src/snael.py"
   FILE_NAME = '../text/simple.txt'
@@ -28,11 +28,11 @@ For the purposes of this research, the following =Network= class
 defines a consistent interface for accumulating a weighted graph.
 
 A =Network= has exactly one field, a dictionary of associations.  The
-dictionary uses entities (must be hashable, e.g. strings) as keys and
+dictionary uses entities (must be hash-able, e.g. strings) as keys and
 one more dictionary as values.  This inner dictionary maps entities
 onto weights.  Care has been taken to ensure that new entities are
 appropriately handled and connections are two-way (adding a connection
-from A->B is the same as adding a connection from B->A).
+from $A \to B$ is the same as adding a connection from $B \to A$).
 #+BEGIN_SRC python :tangle "./src/snael.py"
   class Network:
       def __init__(self):
@@ -77,11 +77,131 @@ the full contents into =raw=.
 #+END_SRC
 
 * Create List of Names
+** Tagging the Text
 We need to make sure that we have a list of all names.  Let's just
 create a pipeline to tokenize, tag, and chunk a text:
 
 #+BEGIN_SRC python :tangle "./src/snael.py"
-  entities = lambda text: nltk.ne_chunk(nltk.pos_tag(nltk.word_tokenize(text)))
+    entities = lambda text: \
+               nltk.ne_chunk( \
+                nltk.pos_tag( \
+                 nltk.word_tokenize(text)), \
+               binary = True)
+#+END_SRC
+
+Switching on the =binary= option tells NLTK to enable only one type of
+named entity, instead of trying to recognize organizations, places,
+names, and other specifics.  With this option, NLTK seems to be far
+more reliable and consistent.
+
+** Extracting Names
+Now, =entities= is a function that, if we pass it some sentence, it
+can correctly identify many titles as named entities:
+
+#+BEGIN_EXAMPLE
+>>> print entities("Alexander conquered much of the known world \
+    after his father, Phillip II, was assassinated.").pprint()
+(S
+  (NE Alexander/NNP)
+  conquered/VBD
+  much/JJ
+  of/IN
+  the/DT
+  known/VBN
+  world/NN
+  after/IN
+  his/PRP$
+  father/NN
+  ,/,
+  (NE Phillip/NNP II/NNP)
+  ,/,
+  was/VBD
+  assassinated/VBN
+  ./.)
+#+END_EXAMPLE
+
+Note, however, that NLTK is not foolproof; it is yet confused by the
+following simple epithet:
+
+#+BEGIN_EXAMPLE
+>>> print entities("Alexander the Great conquered much of the known \
+    world after his father, Phillip II, was assassinated.").pprint()
+(S
+  Alexander/NNP
+  the/DT
+  (NE Great/NNP)
+  conquered/VBD
+  much/JJ
+  of/IN
+  the/DT
+  known/VBN
+  world/NN
+  after/IN
+  his/PRP$
+  father/NN
+  ,/,
+  (NE Phillip/NNP II/NNP)
+  ,/,
+  was/VBD
+  assassinated/VBN
+  ./.)
+#+END_EXAMPLE
+
+This can most certainly present problems when the names are followed
+by an epithet that is crucial to correctly identifying the person, as
+in =Alexander the Great=.  (This is called an /epitheton
+necessarium/.)  I suspect an NLTK chunking object can be configured to
+correctly identify these by placing an optional determiner between two
+proper nouns (tagged =NNP=), but we will ignore this shortcoming for
+now.
+
+We now need to tag every sentence in the text.  This is by far the
+most time-consuming task, and the program can appear that it is
+frozen.  For this reason, an incremental update system is put into
+place to advise the user on its progress.  The progress bar system is
+taken from [[http://stackoverflow.com/a/3160819/1443496][Stack Overflow]] and is available under the
+Creative~Commons~BY-SA.  The original code was written by
+[[http://stackoverflow.com/users/81179][CristopheD]] and has been modified to be clearer.
+
+#+BEGIN_SRC python :tangle "./src/snael.py"
+  progress_bar_width = 70
+  progress_bar_progress = 0
+  
+  # Write out the bar
+  sys.stdout.write("[%s]" % (" " * progress_bar_width))
+  
+  # Flush the output stream (force write)
+  sys.stdout.flush()
+  
+  # Return to the start of the bar
+  sys.stdout.write("\b" * (progress_bar_width+1))
+#+END_SRC
+
+We prepare a list for the tagged sentences to be stored, and begin to
+track our progress through the text.  (Remember that the text is
+stored as a list of sentences, so this progress is
+sentence-by-sentence.)  For each =sentence= in the =text=, we append
+the list of =tagged_senteces= with the =entities= of the =sentence=.
+We increment our progress through the text, and then test to see if we
+have crossed into the next level of the progress bar.  (We do this by
+comparing the ratios between =current_text_index= : =len(text)= and
+=progress_bar=progress= : =progress_bar_width=.)  If we need to, we
+write a character to =stdout=, flush the buffer (forcing the write),
+and then increment our progress through the progress bar.
+
+#+BEGIN_SRC python :tangle "./src/snael.py"
+  tagged_sentences = list()
+  
+  current_text_index = 0  
+
+  for sentence in text:
+      tagged_sentence += entities(sentence)
+      current_text_index += 1
+      if float(current_text_index) / float(len(text)) > \
+         float(progress_bar_progress) / float(progress_bar_width):
+          sys.stdout.write('-')
+          sys.stdout.flush()
+          progress_bar_progress += 1
 #+END_SRC
 
 #+BEGIN_SRC python :tangle "./src/snael.py"
@@ -96,7 +216,6 @@ create a pipeline to tokenize, tag, and chunk a text:
 #+END_SRC
 
 * Resolve Anaphora (antecedents)
-
 * Find Occurances
 First we need to prepare a data structure for the occurances to live
 in.  The obvious choice is a dictionary, with names as keys and lists
