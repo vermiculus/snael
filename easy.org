@@ -79,7 +79,8 @@ the full contents into =raw=.
 * Create List of Names
 ** Tagging the Text
 We need to make sure that we have a list of all names.  Let's just
-create a pipeline to tokenize, tag, and chunk a text:
+create a pipeline to tokenize, tag, and chunk a text, using a
+simplified regular expression to detect names.
 
 #+BEGIN_SRC python :tangle "./src/snael.py"
   grammer = r'NAME: {<NNP>+(<DT>?<NNP>+)?}'
@@ -87,8 +88,7 @@ create a pipeline to tokenize, tag, and chunk a text:
   entities = lambda text: \
              ne_chunker.parse( \
               nltk.pos_tag( \
-               nltk.word_tokenize(text)), \
-             binary = True)
+               nltk.word_tokenize(text)))
 #+END_SRC
 
 Switching on the =binary= option tells NLTK to enable only one type of
@@ -96,7 +96,7 @@ named entity, instead of trying to recognize organizations, places,
 names, and other specifics.  With this option, NLTK seems to be far
 more reliable and consistent.
 
-** Extracting Names
+** Recognizing Names
 Now, =entities= is a function that, if we pass it some sentence, it
 can correctly identify many titles as named entities:
 
@@ -199,6 +199,7 @@ write), and then increment our progress through the progress bar.
   
   current_text_index = 0
 
+  print '>tagging entire text'
   for sentence in text:
       tagged_sentences.append(entities(sentence))
       current_text_index += 1
@@ -207,7 +208,91 @@ write), and then increment our progress through the progress bar.
           sys.stdout.write('-')
           sys.stdout.flush()
           progress_bar_progress += 1
+  print ''
+  print '>Done.'
 #+END_SRC
+
+*** Resolve Anaphora
+We now have =tagged_sentences= in memory; we have a /complete/ tagged
+list of all words in the text, and have (hopefully) recognized all
+explicit names.
+
+But what about /implicit/ names?  In English, it is common to have
+/anaphora/, the 'fancy term' for these implicit names.
+
+Nota Bene: there are two differing definitions of /anaphora/:
+
+1. the rhetorical device of repeating a sentence structure for
+   emphasis
+2. an expression who reference depends upon another referential
+   expression
+
+For example, the following phrase exhibits two cases of anaphora:
+
+#+BEGIN_EXAMPLE
+The fat cat tripped on itself.  The mouse then laughed at it.
+#+END_EXAMPLE
+
+**** The Problem
+It is important to note that anaphora can manifest itself in reflexive
+pronouns (/itself/) and in nominal pronouns (/it/), and neither need
+be in the same sentence.  Furthermore, in objective pronouns, the
+antecedant is often found further back in the text:
+
+#+BEGIN_EXAMPLE
+And he said, 'Then why do you worship Him?'
+#+END_EXAMPLE
+(cite)
+
+In this example, =he= is referring to =Mr Bloom= (the protagonist) and
+=Him= is referring to God, an entity named in dialogue.  Moreover,
+consider the (contrived) example,
+
+#+BEGIN_EXAMPLE
+Pleased with himself, Matthew showed her the painting he drew.
+#+END_EXAMPLE
+
+And, for goodness' sake,
+
+#+BEGIN_EXAMPLE
+It is raining outside.
+#+END_EXAMPLE
+
+So we know a couple of things:
+
+1. The pronoun can come before the noun.
+2. The pronoun is almost /always/ gender-sensitive.
+3. Due to the above, the pronoun can 'skip' other nouns and pronouns
+   in order to reach its intended reference.
+4. Sometimes, there simply /is no antecedant/.
+
+Thus we are presented with many problems:
+
+1. Resolving a pronoun isn't as easy as scanning the text and
+   replacing each with the noun that precedes it.  (Even =it= skips
+   =noun= and =text= to reach =pronoun=.)
+2. The gender of pronouns raise worse issues still; it is almost
+   impossible to determine the gender of a name without a dictionary
+   and, if a pseudonym is gender-agnostic, it is simply impossible to
+   resolve without multiple passes of a more advanced algorithm that
+   can detect aliases.
+3. Should such non-gendered actors exist, how can they be
+   distinguished from non-actors?  (=The Spirit watched the city it
+   guarded.=, where more complicated examples surely exist.)
+
+The list goes on.  There is an existing portion of NLTK
+(=nltk.sem.drt=) that 'deals with' anaphora, but its implementation is
+needlessly cryptic for our purposes, difficult to work with, and
+completely unreliable.  We will approach this with a basic, imperfect
+algorithm that will resolve /some/ of the references, but will surely
+not resolve /all/ of them.  It is better to miss a reference than to
+create a wrong one, which NLTK's will often do.
+
+**** The 'Solution'
+Since we know this algorithm will be imperfect, we will encapsulate it
+in its own method, =resolve_anaphora(text)=, which will simply return
+a copy of =text= after replacing every positive instance of resolvable
+anaphora with its antecedant.
 
 TODO: sift out =NE= items in the =Tree= and then construct the list of
 names.  May need to alter use of =Network= to allow for aliases.
@@ -223,7 +308,6 @@ names.  May need to alter use of =Network= to allow for aliases.
       return d
 #+END_SRC
 
-* Resolve Anaphora (antecedents)
 * Find Occurances
 First we need to prepare a data structure for the occurances to live
 in.  The obvious choice is a dictionary, with names as keys and lists
@@ -243,3 +327,8 @@ Now find occurances and store them.
           if name in sentence:
               names[name].append(text.index(sentence))
 #+END_SRC
+
+* Resolve Aliases
+Somehow resolve aliases and combine lists of occurances accordingly
+
+* Output
