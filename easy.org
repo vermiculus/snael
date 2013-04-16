@@ -255,7 +255,6 @@ added to the list of names, which is returned.
 
 We will then use this function and map it across the entire text,
 accumulating the list of names.
-
 #+BEGIN_SRC python :tangle "./src/snael.py"
   def get_names_from_text(text):
       """Extracts all names from a text.
@@ -398,6 +397,18 @@ Ideas
 - Look for names that are part of other names; Mina \in Mina Murray;
   the Count \in Count Dracula
 - 
+
+Success is in sight!  
+#+BEGIN_SRC python :tangle "./src/snael.py"
+  class Entity:
+      def __init__(self):
+          self.names = list()
+          self.occurances = set()
+      def add_name(name):
+          self.names.append(name)
+      def find_occurances(text):
+          pass
+#+END_SRC
 * TODO Output
 ** DONE Requirements
 The output of this program is a list of name-name-weight tuples.
