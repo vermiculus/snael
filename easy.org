@@ -17,7 +17,7 @@ Alderman, winning the 2009 BBC National Short Story Award, and is
 freely available on-line.
 
 #+BEGIN_SRC python :tangle "./src/snael.py"
-  FILE_NAME = '../text/simple.txt'
+  FILE_NAME = '../text/135.txt'
 #+END_SRC
 
 * TODO Wait, what is a Network?
@@ -58,6 +58,57 @@ from $A \to B$ is the same as adding a connection from $B \to A$).
                   relations.add("{{{}}{{}}{{}}}".format(\
                             name, other, assoc[name][other]))
           return '\n'.join(relations)
+#+END_SRC
+
+* TODO Entities?
+#+BEGIN_SRC python :tangle "./src/snael.py"
+  class Entity:
+      def __init__(self, name):
+          self.names = set([name])
+          self.occurances = set()
+  
+      def find_occurances(self, text):
+          for sentence in text:
+              for name in self.names:
+                  if name in sentence:
+                      self.occurances.add(text.index(sentence))
+  
+      def same(self, entity, threshold=.6):
+          """Absorbs `entity` into self if `entity` and self are sufficiently
+   similar.
+          
+          Arguments:
+          - `self`:
+          - `entity`:
+          """
+          
+          similarity = 0.0
+  
+          for my_name in self.names:
+              for your_name in entity.names:
+                  if same(my_name, your_name):
+                      similarity += 1
+  
+          similarity_ratio = similarity / (len(self.names)*len(entity.names))
+  
+          return similarity_ratio >= threshold
+  
+      def absorb(self, entity):
+          """Absorbs another entity
+          
+          Arguments:
+          - `self`:
+          - `entity`:
+          """
+          self.names |= entity.names
+          self.occurances |= entity.occurances
+  
+      def __str__(self):
+          r = "{!"
+          for name in self.names:
+              r += "{%s}" % name
+          r += "}"
+          return r
 #+END_SRC
 
 * DONE Load Text
@@ -381,7 +432,7 @@ Ideas
 
 Define a function to see if two names are the same
 #+BEGIN_SRC python :tangle "./src/snael.py"
-  def same(name1, name2, treshold=.3):
+  def same(name1, name2, treshold=.5):
       """Compares two names and determines if they refer to the same person.
       
       Arguments:
@@ -408,57 +459,14 @@ Define a function to see if two names are the same
 Look at names and combine those which are the same
 
 Success is in sight!  We now have a 
-#+BEGIN_SRC python :tangle "./src/snael.py"
-  class Entity:
-      def __init__(self, name):
-          self.names = set([name])
-          self.occurances = set()
-  
-      def find_occurances(self, text):
-          for sentence in text:
-              for name in self.names:
-                  if name in sentence:
-                      self.occurances.add(text.index(sentence))
-  
-      def same(self, entity, threshold=.6):
-          """Absorbs `entity` into self if `entity` and self are sufficiently
-   similar.
-          
-          Arguments:
-          - `self`:
-          - `entity`:
-          """
-          
-          similarity = 0.0
-  
-          for my_name in self.names:
-              for your_name in entity.names:
-                  if same(my_name, your_name):
-                      similarity += 1
-  
-          similarity_ratio = similarity / (len(self.names)*len(entity.names))
-  
-          return similarity_ratio >= threshold
-  
-      def absorb(self, entity):
-          """Absorbs another entity
-          
-          Arguments:
-          - `self`:
-          - `entity`:
-          """
-          self.names |= entity.names
-          self.occurances |= entity.occurances
-  
-      def __str__(self):
-          r = "{!"
-          for name in self.names:
-              r += "{%s}" % name
-          r += "}"
-          return r
-#+END_SRC
 
 Sort by most popular names
+#+BEGIN_SRC python :tangle "./src/snael.py"
+   people = sorted(people,
+                   key=lambda entity: len(entity.occurances),
+                   reverse=True)
+   raw_input('\n'.join([str(p) for p in people]))
+#+END_SRC
 
 Actually combine entities deemed to be the same
 #+BEGIN_SRC python :tangle "./src/snael.py"
@@ -467,7 +475,7 @@ Actually combine entities deemed to be the same
   again = True
   while again:
       again = False
-      for entity1, entity2 in combinations(people,2):
+      for entity1, entity2 in combinations(people, 2):
           if entity1.same(entity2):
               again = True
               entity1.absorb(entity2)
