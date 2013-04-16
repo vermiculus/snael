@@ -378,6 +378,19 @@ Now find occurances and store them.
               occurances[name].append(text.index(sentence))
 #+END_SRC
 
+#+BEGIN_SRC python :tangle "./src/snael.py"
+  print '>determining co-occurances'
+  # determine co-occurances (range:5)
+  network = Network()
+  r = 5
+  for name in occurances.keys():
+      for oc in occurances[name]:
+          for other in occurances.keys():
+              for other_oc in occurances[other]:
+                  if other_oc in range(oc-r, oc+r):
+                      network.addConnection(name, other)
+#+END_SRC
+
 * TODO Resolve Aliases
 Somehow resolve aliases and combine lists of occurances accordingly
 
