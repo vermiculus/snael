@@ -456,46 +456,26 @@ Actually combine entities deemed to be the same
               break
 #+END_SRC
 
-* DONE Find Occurances
-First we need to prepare a data structure for the occurances to live
-in.  The obvious choice is a dictionary, with names as keys and lists
-of locations as values.  So, to create this dictionary:
-
+* DONE Find Occurances and Cooccurances
 #+BEGIN_SRC python :tangle "./src/snael.py"
-  occurances = dict()
-  for name in names:
-      occurances[name] = list()
-#+END_SRC
-
-Now find occurances and store them in the dictionary prepared.  For
-each name, go through every sentence to see if the name is in the
-sentence.  If it is, add the occurance to the list in the
-dictionary.
-#+BEGIN_SRC python :tangle "./src/snael.py"
-  for name in occurances.keys():
-      for sentence in text:
-          if name in sentence:
-              occurances[name].append(text.index(sentence))
-#+END_SRC
-
-This is another meaty part of the program.  We declare a range =r=
-(=range= is already a defined function in Python and cannot be used
-as a variable name).  For each name, we search for other names within
-the range =r= of this one.  So, if =r=5=, we will search for any
-names that are within =r=5= sentences of each other.  For any pairs
-of names that fall within range, we will add an association.
-#+BEGIN_SRC python :tangle "./src/snael.py"
-  print '>determining co-occurances'
-  # determine co-occurances (range:5)
+  for person in people:
+      person.find_occurances(text)
+  
+  from itertools import combinations
+  
+  pairs = combinations(people, 2)
+  
   network = Network()
   r = 5
-  for name in occurances.keys():
-      for oc in occurances[name]:
-          for other in occurances.keys():
-              for other_oc in occurances[other]:
-                  if other_oc in range(oc-r, oc+r):
-                      network.addConnection(name, other)
+  
+  for A, B in pairs:
+      for oA in A.occurances:
+          for oB in B.occurances:
+              if oB in range(oA-r, oA+r):
+                  network.addConnection(A, B)
 #+END_SRC
+
+
 * TODO Output
 ** DONE Requirements
 The output of this program is a list of name-name-weight tuples.
@@ -530,54 +510,3 @@ the example are arbitrary)
   ...
 #+END_EXAMPLE
 ** TODO Implementation
-
-#+BEGIN_SRC python :tangle "./src/simhash.py"
-# from http://blog.simpliplant.eu/calculating-similarity-between-text-strings-in-python/
-import hashlib
- 
-class Simhash():
-    def __init__(self, text):
-        self.hashbits = 384
-        self.hash = self.simhash(text.split())
- 
-    def __str__(self):
-        return str(self.hash)
- 
-    def __int__(self):
-        return int(self.hash)
- 
-    def __float__(self):
-        return float(self.hash)
- 
-    def simhash(self, tokens):
-        v = [0]*self.hashbits
- 
-        for t in [self.string_hash(x) for x in tokens]:
-            bitmask = 0
-            for i in range(self.hashbits):
-                bitmask = 1 << i
-                if t & bitmask:
-                    v[i] += 1
-                else:
-                    v[i] -= 1
- 
-        fingerprint = 0
- 
-        for i in range(self.hashbits):
-            if v[i] >= 0:
-                fingerprint += 1 << i
- 
-        return fingerprint
- 
-    def string_hash(self, v):
-        return int(hashlib.sha384(v.encode()).hexdigest(), 16)
- 
-    def similarity(self, other_hash):
-        hash1 = float(self.hash)
-        hash2 = float(other_hash)
- 
-        if hash1 > hash2:
-            return hash2/hash1*100
-        else:
-            return hash1/hash2*100
-#+END_SRC
