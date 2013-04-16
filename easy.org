@@ -332,3 +332,15 @@ Now find occurances and store them.
 Somehow resolve aliases and combine lists of occurances accordingly
 
 * Output
+The output of this program is a list of name-name-weight tuples.
+Since it is very possible that characters go by several names, the
+very first name encountered will be used (if such aliases are
+resolved at all).  Output will be TeX-style, i.e. of the form
+
+#+BEGIN_EXAMPLE
+  {Jean Valjean}{Jondrette}{540}
+  {Jean Valjean}{Javert}{550}
+#+END_EXAMPLE
+
+to allow for easy parsing.  (The actual values in the example are
+arbitrary.)
