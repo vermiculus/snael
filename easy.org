@@ -248,7 +248,7 @@ added to the list of names, which is returned.
       
       for name in names_tagged:
           this_name = [tag[0] for tag in name]
-          names.append(' '.join(this_name)
+          names.append(' '.join(this_name))
   
       return names
 #+END_SRC
@@ -264,14 +264,14 @@ accumulating the list of names.
       names = set()
   
       for sentence in text:
-          names |= get_names_from_sentence(sentence)
+          names = names.union(get_names_from_sentence(sentence))
   
       return list(names)
 #+END_SRC
 
 And viola, we have a list of names from the text.
 #+BEGIN_SRC python :tangle "./src/snael.py"
-  names = get_names_from_text(text)
+  names = get_names_from_text(tagged_sentences)
 #+END_SRC
 
 *** TODO Resolve Anaphora
@@ -375,7 +375,7 @@ Now find occurances and store them.
   for name in occurances.keys():
       for sentence in text:
           if name in sentence:
-              names[name].append(text.index(sentence))
+              occurances[name].append(text.index(sentence))
 #+END_SRC
 
 * TODO Resolve Aliases
