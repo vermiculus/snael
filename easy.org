@@ -335,12 +335,33 @@ Somehow resolve aliases and combine lists of occurances accordingly
 The output of this program is a list of name-name-weight tuples.
 Since it is very possible that characters go by several names, the
 very first name encountered will be used (if such aliases are
-resolved at all).  Output will be TeX-style, i.e. of the form
+resolved at all).
 
+The output is a plain text file that denotes detected aliases and
+relationships.  All names are enclosed in a TeX-style group,
+i.e. ={}=.  Aliases are a group of names set off by a bang (=!=).
+Relationships are not set off so, and will always end in the strength
+of the relationship.
+
+Here is a contrived excerpt of ideal output obtained from a run on
+Victor Hugo's Les Miserables: (note the actual values for weights in
+the example are arbitrary)
 #+BEGIN_EXAMPLE
-  {Jean Valjean}{Jondrette}{540}
-  {Jean Valjean}{Javert}{550}
+  {!{Jean Valjean}
+    {Monsieur Madeleine}
+    {Ultime Fauchelevent}
+    {Monsieur Leblanc}
+    {Urbain Fabre}}
+  {!{Javert}}
+  {!{Cosette}
+    {Euphrasie}
+    {the Lark}
+    {Medemoiselle Lanoire}
+    {Ursula}}
+  ...
+  {{Jean Valjean}{Jondrette}{540}}
+  {{Jean Valjean}{Javert}{550}}
+  ...
 #+END_EXAMPLE
 
-to allow for easy parsing.  (The actual values in the example are
-arbitrary.)
+
