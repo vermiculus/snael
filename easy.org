@@ -6,7 +6,7 @@
   print "Welcome to SNAEL, version 0.2"
 #+END_SRC
 
-* What are we Studying?
+* TODO What are we Studying?
 We are studying the social networks within a text stored in the
 following file, served from [[http://fileserver.booktrust.org.uk/usr/library/documents/bbc-nssa-2009/other_peoples_gods.pdf][BookTrust.org]] on [2013-04-08 Mon].  The
 file has been edited from its original form, but the text has not been
@@ -20,7 +20,7 @@ freely available on-line.
   FILE_NAME = '../text/simple.txt'
 #+END_SRC
 
-* Wait, what is a Network?
+* TODO Wait, what is a Network?
 A network is a graph---it is a collection of entities (usually called
 'nodes') that are connected to each other in certain ways.
 
@@ -52,7 +52,7 @@ from $A \to B$ is the same as adding a connection from $B \to A$).
           self.associations[entityB][entityA] += 1
 #+END_SRC
 
-* Load Text
+* DONE Load Text
 Obviously, the first thing of significance we do is load the file into
 memory.  This snippet of code opens =FILE_NAME= as read-only and loads
 the full contents into =raw=.
@@ -63,7 +63,7 @@ the full contents into =raw=.
       print '>file read'
 #+END_SRC
 
-* Tokenize Text
+* DONE Tokenize Text
 #+BEGIN_SRC python :tangle "./src/snael.py"
   print '>importing nltk'
   import nltk
@@ -77,7 +77,7 @@ the full contents into =raw=.
 #+END_SRC
 
 * Create List of Names
-** Tagging the Text
+** DONE Tagging the Text
 We need to make sure that we have a list of all names.  Let's just
 create a pipeline to tokenize, tag, and chunk a text, using a
 simplified regular expression to detect names.
@@ -96,7 +96,7 @@ named entity, instead of trying to recognize organizations, places,
 names, and other specifics.  With this option, NLTK seems to be far
 more reliable and consistent.
 
-** Recognizing Names
+** TODO Recognizing Names
 Now, =entities= is a function that, if we pass it some sentence, it
 can correctly identify many titles as named entities:
 
@@ -212,7 +212,7 @@ write), and then increment our progress through the progress bar.
   print '>Done.'
 #+END_SRC
 
-*** Resolve Anaphora
+*** TODO Resolve Anaphora
 We now have =tagged_sentences= in memory; we have a /complete/ tagged
 list of all words in the text, and have (hopefully) recognized all
 explicit names.
@@ -308,7 +308,7 @@ names.  May need to alter use of =Network= to allow for aliases.
       return d
 #+END_SRC
 
-* Find Occurances
+* DONE Find Occurances
 First we need to prepare a data structure for the occurances to live
 in.  The obvious choice is a dictionary, with names as keys and lists
 of locations as values.  So, to create this dictionary:
@@ -328,10 +328,11 @@ Now find occurances and store them.
               names[name].append(text.index(sentence))
 #+END_SRC
 
-* Resolve Aliases
+* TODO Resolve Aliases
 Somehow resolve aliases and combine lists of occurances accordingly
 
-* Output
+* TODO Output
+** DONE Requirements
 The output of this program is a list of name-name-weight tuples.
 Since it is very possible that characters go by several names, the
 very first name encountered will be used (if such aliases are
@@ -363,5 +364,4 @@ the example are arbitrary)
   {{Jean Valjean}{Javert}{550}}
   ...
 #+END_EXAMPLE
-
-
+** TODO Implementation
