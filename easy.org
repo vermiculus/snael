@@ -3,7 +3,7 @@
 #+Date: [2013-04-20 Sat]
 
 #+BEGIN_SRC python :tangle "./src/snael.py"
-  print "Welcome to SNAEL, version 0.2"
+  print "Welcome to SNAEL, version 0.3"
 #+END_SRC
 
 * TODO What are we Studying?
@@ -76,8 +76,8 @@ the full contents into =raw=.
   text = nltk.Text(tokens)
 #+END_SRC
 
-* Create List of Names
-** DONE Tagging the Text
+* TODO Create List of Names
+** DONE Prepare a Grammar
 We need to make sure that we have a list of all names.  Let's just
 create a pipeline to tokenize, tag, and chunk a text, using a
 simplified regular expression to detect names.
@@ -97,6 +97,7 @@ names, and other specifics.  With this option, NLTK seems to be far
 more reliable and consistent.
 
 ** TODO Recognizing Names
+*** DONE Shortcomings
 Now, =entities= is a function that, if we pass it some sentence, it
 can correctly identify many titles as named entities:
 
@@ -157,15 +158,17 @@ correctly identify these by placing an optional determiner between two
 proper nouns (tagged =NNP=), but we will ignore this shortcoming for
 now.
 
+*** DONE Tagging
 We now need to tag every sentence in the text.  This is by far the
 most time-consuming task, and the program can appear that it is
 frozen.  For this reason, an incremental update system is put into
 place to advise the user on its progress.  The progress bar system is
-taken from [[http://stackoverflow.com/a/3160819/1443496][Stack Overflow]] and is available under the
-Creative~Commons~BY-SA.  The original code was written by
-[[http://stackoverflow.com/users/81179][CristopheD]] and has been modified to be clearer.
+taken from [[http://stackoverflow.com/a/3160819/1443496][Stack Overflow]] and is available under
+Creative~Commons~BY-SA.  The original code was written by [[http://stackoverflow.com/users/81179][CristopheD]]
+and has been modified to be clearer.
 
 #+BEGIN_SRC python :tangle "./src/snael.py"
+  print '>tagging entire text'
   progress_bar_width = 70
   progress_bar_progress = 0
 
@@ -199,7 +202,6 @@ write), and then increment our progress through the progress bar.
   
   current_text_index = 0
 
-  print '>tagging entire text'
   for sentence in text:
       tagged_sentences.append(entities(sentence))
       current_text_index += 1
@@ -210,6 +212,66 @@ write), and then increment our progress through the progress bar.
           progress_bar_progress += 1
   print ''
   print '>Done.'
+#+END_SRC
+*** TODO Strip Names
+=tagged_sentences= is now a list that contains every sentence with
+every word tagged as to its position.  Names are all tagged as such
+(=NAME=), so all we need to do is distill the entire text into a list
+of names.
+
+In good practice, we'll define a function that will receive exactly
+one sentence (as tagged by NLTK) and pull out the names, returning
+them as a list.
+
+We can use the production rules to extract the names.  For each
+=NAME= recognized, a production is made from =NAME= to the actual
+name matched.  The actual name matched is stored in the right-hand
+side, or =rhs=, of the production list (given by
+=sentence.productions()=).  (Note that the first production is always
+from =S= (the sentence) to the sentence itself, with =NAME= standing
+in for matched names.)  The =rhs= is stored in a tuple of tuples, and
+a bit of indexing magic is done to extract what is needed (the first
+element of each tuple).  This is then joined with a single space and
+added to the list of names, which is returned.
+#+BEGIN_SRC python :tangle "./src/snael.py"
+  def get_names_from_sentence(sentence):
+      """Extracts the names from a single sentence and returns them in a
+      list.
+  
+      """
+  
+      names = list()
+  
+      production_names = sentence.productions()[1:]
+  
+      names_tagged = [tag.rhs() for tag in production_names]
+      
+      for name in names_tagged:
+          this_name = [tag[0] for tag in name]
+          names.append(' '.join(this_name)
+  
+      return names
+#+END_SRC
+
+We will then use this function and map it across the entire text,
+accumulating the list of names.
+
+#+BEGIN_SRC python :tangle "./src/snael.py"
+  def get_names_from_text(text):
+      """Extracts all names from a text.
+      """
+  
+      names = set()
+  
+      for sentence in text:
+          names |= get_names_from_sentence(sentence)
+  
+      return list(names)
+#+END_SRC
+
+And viola, we have a list of names from the text.
+#+BEGIN_SRC python :tangle "./src/snael.py"
+  names = get_names_from_text(text)
 #+END_SRC
 
 *** TODO Resolve Anaphora
@@ -294,19 +356,7 @@ in its own method, =resolve_anaphora(text)=, which will simply return
 a copy of =text= after replacing every positive instance of resolvable
 anaphora with its antecedant.
 
-TODO: sift out =NE= items in the =Tree= and then construct the list of
-names.  May need to alter use of =Network= to allow for aliases.
-
-#+BEGIN_SRC python :tangle "./src/snael.py"
-  names = ['Fabantou', 'Leblanc', 'Jondrette']
-  #  text  = list() #of sentences, lines, or whatever
-
-  def list2dict(l,dv=set()):
-      d=dict()
-      for e in l:
-          d[e]=dv
-      return d
-#+END_SRC
+Unfortunately, I'm not smart enough to do this.  Ho hum.
 
 * DONE Find Occurances
 First we need to prepare a data structure for the occurances to live
@@ -331,6 +381,10 @@ Now find occurances and store them.
 * TODO Resolve Aliases
 Somehow resolve aliases and combine lists of occurances accordingly
 
+Ideas
+- Look for names that are part of other names; Mina \in Mina Murray;
+  the Count \in Count Dracula
+- 
 * TODO Output
 ** DONE Requirements
 The output of this program is a list of name-name-weight tuples.
