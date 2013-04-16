@@ -50,6 +50,14 @@ from $A \to B$ is the same as adding a connection from $B \to A$).
   
           self.associations[entityA][entityB] += 1
           self.associations[entityB][entityA] += 1
+      def __str__(self):
+          relations = set()
+          assoc = self.associations
+          for name in assoc.keys():
+              for other in assoc[name].keys():
+                  relations.add("{{{}}{{}}{{}}}".format(\
+                            name, other, assoc[name][other]))
+          return '\n'.join(relations)
 #+END_SRC
 
 * DONE Load Text
@@ -357,6 +365,13 @@ anaphora with its antecedant.
 
 Unfortunately, I'm not smart enough to do this.  Ho hum.
 
+* DONE Find Occurances
+#+BEGIN_SRC python :tangle "./src/snael.py"
+  people = [Entity(name) for name in names]
+  for person in people:
+      person.find_occurances(text)
+#+END_SRC
+
 * TODO Resolve Aliases
 Somehow resolve aliases and combine lists of occurances accordingly
 
@@ -374,10 +389,10 @@ Define a function to see if two names are the same
       - `name2`: A name
       """
       if name1 is name2:
-          print 'Identical'
+      #    print 'Identical'
           return True
       if name1 in name2 or name2 in name1:
-          print 'Contained'
+      #    print 'Contained'
           return True
   
       import ngram
@@ -423,7 +438,7 @@ Success is in sight!  We now have a
   
           similarity_ratio = similarity / (len(self.names)*len(entity.names))
   
-          return similarity_ratio >= treshold
+          return similarity_ratio >= threshold
   
       def absorb(self, entity):
           """Absorbs another entity
@@ -434,33 +449,34 @@ Success is in sight!  We now have a
           """
           self.names |= entity.names
           self.occurances |= entity.occurances
+  
+      def __str__(self):
+          r = "{!"
+          for name in self.names:
+              r += "{%s}" % name
+          r += "}"
+          return r
 #+END_SRC
+
+Sort by most popular names
 
 Actually combine entities deemed to be the same
 #+BEGIN_SRC python :tangle "./src/snael.py"
-  people = [Entity(name) for name in names]
-  
-  # Self-stabalizing
+  from itertools import combinations
   
   again = True
   while again:
       again = False
-      for entity1 in people:
-          for entity2 in people:
-              if entity1.same(entity2):
-                  again = True
-                  entity1.absorb(entity2)
-                  people.remove(entity2)
-                  break
-          if again:
+      for entity1, entity2 in combinations(people,2):
+          if entity1.same(entity2):
+              again = True
+              entity1.absorb(entity2)
+              people.remove(entity2)
               break
 #+END_SRC
 
-* DONE Find Occurances and Cooccurances
+* DONE Find Cooccurances
 #+BEGIN_SRC python :tangle "./src/snael.py"
-  for person in people:
-      person.find_occurances(text)
-  
   from itertools import combinations
   
   pairs = combinations(people, 2)
