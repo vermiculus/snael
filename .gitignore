@@ -1,5 +1,12 @@
+# Don't need source files - literate programming
 src/*
-*-eps-converted-to*
 
-#*#
+# backup files are redundant
+\#*\#
 *~
+
+# Protect them secrets!  (Silly copyrights...)
+/poster/ucd.eps
+
+# More secret-protecting.  Vector images can be extracted from PDF files quite simply.
+*.pdf

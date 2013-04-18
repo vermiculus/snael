@@ -1,8 +1,12 @@
-\documentclass[12pt,a4paper,notitlepage]{article}
-\usepackage{acro,hyperref,graphicx,biblatex}
+\documentclass[12pt,a4paper]{article}
+\usepackage{acro,hyperref,graphicx}
 \usepackage[margin=1in]{geometry}
 
-\addbibresource{refs.bib}
+\usepackage[british]{babel}
+\usepackage[style=apa]{biblatex}
+\DeclareLanguageMapping{british}{british-apa}
+
+\addbibresource{./refs.bib}
 
 \hypersetup{
     bookmarks=true,
@@ -39,6 +43,8 @@
 
 \begin{document}
 \maketitle
+
+\let\autocite=\parencite
 
 \thispagestyle{empty}
 \begin{abstract}

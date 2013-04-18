@@ -1,22 +1,39 @@
 \documentclass{beamer}
 \usepackage[english]{babel}
 
+\makeatletter
+\newcommand\HUGE{\@setfontsize\Huge{96}{115}}
+\makeatother
+
 \usepackage[orientation=portrait,size=a0]{beamerposter}
 \mode<presentation>{%
   \usetheme{Frankfurt}%
 }
 
-\newcommand{\llogo}{\includegraphics[height=4cm]{logo}}
-\newcommand{\rlogo}{\includegraphics[height=2cm]{logo}}
+\usepackage{hyperref}
+
+\hypersetup{
+    pdftitle={Social Network Analysis of English Literature},
+    pdfauthor={Sean Allred},
+    pdfsubject={Natural Language Processing},
+    pdfkeywords={nlp} {computer} {science} {conference} {poster},
+    colorlinks=true,
+    linkcolor=black,
+    citecolor=black,
+    filecolor=black,
+    urlcolor=black}
+
+\newcommand{\llogo}{\includegraphics[height=11.88cm]{ucd}}
+\newcommand{\rlogo}{\includegraphics[height=11.88cm]{ucd}}
 
 \setbeamerfont{block title}{size=\LARGE}
+\addtobeamertemplate{block end}{}{\vskip 10ex plus 1ex minus 1ex}
 
 \title[S. N. A. E. L.]{%
-\parbox{.25\textwidth}{\centering\rule[-.3\baselineskip]{0pt}{5cm}\llogo}%
-\parbox{.5\textwidth}{\centering\LARGE Social Network Analysis in English Literature}%
-\parbox{.25\textwidth}{\centering\rlogo}%
-}
-\author{\Large Sean Allred}
+\parbox{.25\textwidth}{\centering\llogo}%
+\parbox{.5\textwidth}{\centering\HUGE Social Network Analysis of English Literature}%
+\parbox{.25\textwidth}{\centering\rlogo}}
+\author{\Huge Sean Allred}
 \institute{\Large University College Dublin, Department of Computer Science and Informatics%
 %\\\large Scoil na R\'iomheola\'iochta agus Faisn\'eis\'iochta, An Col\'aiste Ollscoile, Baile \'Atha Cliath
 }
@@ -31,47 +48,28 @@
   \vskip 10ex
   \begin{columns}
     \begin{column}{.45\textwidth}
-      \begin{block}{Introduction} % What has currently been done, what is it good for, what are you trying to do, start with the general, going into specifics
-        Why, hello there!  \LaTeX{} is a tool for professional
-        typesetting.  It is used by academics, researchers, and
-        professionals \emph{all over the world}.  It is written in
-        plain text in the \LaTeX{} format.  Like HTML, \LaTeX{} is a
-        \textsl{markup language}; while Turing complete for all my
-        geeks out there, it is designed to be simple to understand
-        even in its plain-text form.
+      \begin{block}{Introduction}
+        What has currently been done, what is it good for, what are you trying to do, start with the general, going into specifics
       \end{block}
       \begin{block}{Objective}
         doodaa
       \end{block}
+      \begin{block}{Methods}
+        Source Listings, what a name is defined as
+      \end{block}
     \end{column}
     \begin{column}{.45\textwidth}
-      \begin{block}{Methods} % Source Listings, what a name is defined as
-        Writing \LaTeX{} is easy: all you need is an editor (any text
-        editor will do) and what we call a \TeX{} distribution.  A
-        \TeX{} distribution is just a fancy way of saying `everything
-        you need to produce a document with \LaTeX{}.  This usually
-        includes the main programs (\texttt{tex}, \texttt{latex},
-        \texttt{pdftex}, \texttt{pdflatex}, etc.) and a slew of other
-        helpful, supplementary programs (\texttt{texdoc},
-        \texttt{texhash}, etc.).  This may seem like a lot, but the
-        only program you will ever have any dealings with on a regular
-        basis is in fact \texttt{pdflatex},\footnote{\texttt{tex} and
-          \texttt{latex} turn these source files into what is called a
-          DVI, an even more portable format.} the program that will
-        take a properly-formatted \LaTeX{} source file and turn it
-        into a PDF.
-      \end{block}
       \begin{block}{Results}
         I am \emph{not} qualified to draw conclusions.  Ha!
       \end{block}
-      \begin{block}{Discussion} % The meaning of results, the future of the topic, error covering
-        I am \emph{not} qualified to draw conclusions.  Ha!
+      \begin{block}{Discussion} 
+        The meaning of results, the future of the topic, error covering
       \end{block}
-      \begin{block}{Conclusions} % a re-hash of the second part of discussion?
-        I am \emph{not} qualified to draw conclusions.  Ha!
+      \begin{block}{Conclusions}
+        a re-hash of the second part of discussion?
       \end{block}
-      \begin{block}{Acknowledgments} % a re-hash of the second part of discussion?
-        I am \emph{not} qualified to draw conclusions.  Ha!
+      \begin{block}{Acknowledgments}
+        Thanks Dr.~P\'adraig~Cunningham
       \end{block}
     \end{column}
   \end{columns}
