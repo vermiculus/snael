@@ -531,5 +531,8 @@ the example are arbitrary)
 #+END_EXAMPLE
 ** TODO Implementation
 #+BEGIN_SRC python :tangle "./src/snael.py"
-
+  with open(FILENAME+'.processed','w') as f:
+      for p in people:
+          f.write(p)
+      f.write(str(network))
 #+END_SRC
