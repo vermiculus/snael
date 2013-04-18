@@ -6,7 +6,7 @@
   print "Welcome to SNAEL, version 0.3"
 #+END_SRC
 
-* TODO What are we Studying?
+* DONE What are we Studying?
 We are studying the social networks within a text stored in the
 following file, served from [[http://fileserver.booktrust.org.uk/usr/library/documents/bbc-nssa-2009/other_peoples_gods.pdf][BookTrust.org]] on [2013-04-08 Mon].  The
 file has been edited from its original form, but the text has not been
@@ -17,10 +17,10 @@ Alderman, winning the 2009 BBC National Short Story Award, and is
 freely available on-line.
 
 #+BEGIN_SRC python :tangle "./src/snael.py"
-  FILE_NAME = '../text/135.txt'
+  FILE_NAME = '../text/simple.txt'
 #+END_SRC
 
-* TODO Wait, what is a Network?
+* DONE Wait, what is a Network?
 A network is a graph---it is a collection of entities (usually called
 'nodes') that are connected to each other in certain ways.
 
@@ -60,7 +60,7 @@ from $A \to B$ is the same as adding a connection from $B \to A$).
           return '\n'.join(relations)
 #+END_SRC
 
-* TODO Entities?
+* DONE Entities?
 #+BEGIN_SRC python :tangle "./src/snael.py"
   class Entity:
       def __init__(self, name):
@@ -272,7 +272,7 @@ write), and then increment our progress through the progress bar.
   print ''
   print '>Done.'
 #+END_SRC
-*** TODO Strip Names
+*** DONE Strip Names
 =tagged_sentences= is now a list that contains every sentence with
 every word tagged as to its position.  Names are all tagged as such
 (=NAME=), so all we need to do is distill the entire text into a list
@@ -471,16 +471,13 @@ Sort by most popular names
 Actually combine entities deemed to be the same
 #+BEGIN_SRC python :tangle "./src/snael.py"
   from itertools import combinations
-  
-  again = True
-  while again:
-      again = False
-      for entity1, entity2 in combinations(people, 2):
-          if entity1.same(entity2):
-              again = True
-              entity1.absorb(entity2)
-              people.remove(entity2)
-              break
+
+  for entity1, entity2 in combinations(people, 2):
+      if entity1.same(entity2):
+          again = True
+          entity1.absorb(entity2)
+          people.remove(entity2)
+          break
 #+END_SRC
 
 * DONE Find Cooccurances
@@ -498,7 +495,6 @@ Actually combine entities deemed to be the same
               if oB in range(oA-r, oA+r):
                   network.addConnection(A, B)
 #+END_SRC
-
 
 * TODO Output
 ** DONE Requirements
@@ -534,3 +530,6 @@ the example are arbitrary)
   ...
 #+END_EXAMPLE
 ** TODO Implementation
+#+BEGIN_SRC python :tangle "./src/snael.py"
+
+#+END_SRC
