@@ -136,7 +136,7 @@ the full contents into =raw=.
   text = nltk.Text(tokens)
 #+END_SRC
 
-* TODO Create List of Names
+* DONE Create List of Names
 ** DONE Prepare a Grammar
 We need to make sure that we have a list of all names.  Let's just
 create a pipeline to tokenize, tag, and chunk a text, using a
@@ -156,7 +156,7 @@ named entity, instead of trying to recognize organizations, places,
 names, and other specifics.  With this option, NLTK seems to be far
 more reliable and consistent.
 
-** TODO Recognizing Names
+** DONE Recognizing Names
 *** DONE Shortcomings
 Now, =entities= is a function that, if we pass it some sentence, it
 can correctly identify many titles as named entities:
@@ -333,7 +333,7 @@ And viola, we have a list of names from the text.
   names = get_names_from_text(tagged_sentences)
 #+END_SRC
 
-*** TODO Resolve Anaphora
+*** COMMENT TODO Resolve Anaphora
 We now have =tagged_sentences= in memory; we have a /complete/ tagged
 list of all words in the text, and have (hopefully) recognized all
 explicit names.
@@ -424,7 +424,7 @@ Unfortunately, I'm not smart enough to do this.  Ho hum.
       person.find_occurances(text)
 #+END_SRC
 
-* TODO Resolve Aliases
+* DONE Resolve Aliases
 Somehow resolve aliases and combine lists of occurances accordingly
 
 Ideas
