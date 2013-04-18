@@ -55,8 +55,9 @@ from $A \to B$ is the same as adding a connection from $B \to A$).
           assoc = self.associations
           for name in assoc.keys():
               for other in assoc[name].keys():
-                  relations.add("{{{}}{{}}{{}}}".format(\
-                            name, other, assoc[name][other]))
+                  relations.add("{{%s}{%s}{%s}}" % \
+                                (str(name), str(other), \
+                                str(assoc[name][other])))
           return '\n'.join(relations)
 #+END_SRC
 
@@ -465,7 +466,6 @@ Sort by most popular names
    people = sorted(people,
                    key=lambda entity: len(entity.occurances),
                    reverse=True)
-   raw_input('\n'.join([str(p) for p in people]))
 #+END_SRC
 
 Actually combine entities deemed to be the same
@@ -496,7 +496,7 @@ Actually combine entities deemed to be the same
                   network.addConnection(A, B)
 #+END_SRC
 
-* TODO Output
+* DONE Output
 ** DONE Requirements
 The output of this program is a list of name-name-weight tuples.
 Since it is very possible that characters go by several names, the
@@ -529,10 +529,28 @@ the example are arbitrary)
   {{Jean Valjean}{Javert}{550}}
   ...
 #+END_EXAMPLE
-** TODO Implementation
+** DONE Implementation
 #+BEGIN_SRC python :tangle "./src/snael.py"
-  with open(FILENAME+'.processed','w') as f:
-      for p in people:
-          f.write(p)
+  print '>writing output'
+  with open(FILE_NAME+'.processed.raw','w') as f:
       f.write(str(network))
+  
+  with open(FILE_NAME+'.processed.gephi','w') as f:
+      mapping = list(people)
+  
+      raw = str(network)
+  
+      for person in mapping:
+          raw = raw.replace(str(person), str(mapping.index(person)))
+  
+      raw = raw.replace('{{','')
+      raw = raw.replace('}{','\t')
+      raw = raw.replace('}}','')
+  
+      for person in mapping:
+          f.write('%s=%s\n' % (str(mapping.index(person)), str(person)))
+  
+      raw = ''.join(sorted(raw.splitlines(True)))
+  
+      f.write(raw)
 #+END_SRC
