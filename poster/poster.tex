@@ -10,8 +10,6 @@
   \usetheme{Frankfurt}%
 }
 
-\usepackage{hyperref}
-
 \hypersetup{
     pdftitle={Social Network Analysis of English Literature},
     pdfauthor={Sean Allred},
@@ -27,47 +25,106 @@
 \newcommand{\rlogo}{\includegraphics[height=11.88cm]{ucd}}
 
 \setbeamerfont{block title}{size=\LARGE}
+\setbeamersize{text margin left = -5pt, text margin right = -5pt}
+
 \addtobeamertemplate{block end}{}{\vskip 10ex plus 1ex minus 1ex}
 
 \title[S. N. A. E. L.]{%
-\parbox{.25\textwidth}{\centering\llogo}%
+\texorpdfstring{\parbox{.25\textwidth}{\centering\llogo}%
 \parbox{.5\textwidth}{\centering\HUGE Social Network Analysis of English Literature}%
-\parbox{.25\textwidth}{\centering\rlogo}}
+\parbox{.25\textwidth}{\centering\rlogo}}{Real Title}}
 \author{\Huge Sean Allred}
-\institute{\Large University College Dublin, Department of Computer Science and Informatics%
+\institute{\Large University College Dublin\\\large Department of Computer Science and Informatics%
 %\\\large Scoil na R\'iomheola\'iochta agus Faisn\'eis\'iochta, An Col\'aiste Ollscoile, Baile \'Atha Cliath
 }
 \date{\Large 26 April 2013}
 
+% \title[SNAIL]{\HUGE Social Network Analysis of English Literature}
+% \makeatletter
+% \addtobeamertemplate{title page}{%
+%     \let\beamerorig@inserttitle\inserttitle%
+%     \renewcommand{\inserttitle}{%
+%        \parbox{0.20\textwidth}{\centering\llogo}
+%        \parbox{0.5 \textwidth}{\centering\beamerorig@inserttitle}
+%        \parbox{0.20\textwidth}{\centering\rlogo}
+%     }
+% }{}
+% \makeatother
+
+
+\usepackage{acro}
+\DeclareAcronym{nlp}{
+  short= NLP,
+  long= Natural Language Processing}
+\DeclareAcronym{nltk}{
+  short= NLTK,
+  long= Natural Language Processing Toolkit}
+
+\newcommand{\topic}[1]{\textsl{#1}}
+
 \begin{document}
 \begin{frame}[t]{}
-  \vskip -1ex
+  \vskip -8pt
   \begin{beamercolorbox}{}
     \maketitle
   \end{beamercolorbox}
   \vskip 10ex
+
   \begin{columns}
     \begin{column}{.45\textwidth}
       \begin{block}{Introduction}
-        What has currently been done, what is it good for, what are you trying to do, start with the general, going into specifics
+        %What has currently been done, what is it good for, what are
+        %you trying to do, start with the general, going into specifics
+        Computer science is a \emph{very} broad topic, covering
+        everything from the stereotypical to the incredibly novel, and
+        the entire study is growing exponentially\footnote{Ha!  Puns!}
+        fast.  Those which were once chased as a pipe-dreams and
+        featured in science fictions has, in many cases, become
+        realized in an industry-grade implementation.  However, not
+        all pipe-dreams have become reality so quickly.
+
+        \ac{nlp} is one such growing subfield of computer science that
+        would enable a computer, through some algorithm, to ingest and
+        interact with human language.  This is distinct from speech
+        recognition, in which the goal is to transform spoken language
+        into text, but not necessarily understand it.
+
+        A further (major) subfield of \ac{nlp} is \topic{named entity
+          recognition}
       \end{block}
+
+% ILLUSTRATION:
+% Natural Language Processing
+% -> Theoretical Computer Science {Formal Languages, Context-free
+%    Grammars
+% -> Text Processing
+% -> Machine Learning
+% -> Artificial Intelligence
+% -> Human-Computer Interaction
+% -> Linguistics
+
       \begin{block}{Objective}
         doodaa
       \end{block}
+
       \begin{block}{Methods}
         Source Listings, what a name is defined as
       \end{block}
     \end{column}
+
     \begin{column}{.45\textwidth}
       \begin{block}{Results}
         I am \emph{not} qualified to draw conclusions.  Ha!
       \end{block}
+
       \begin{block}{Discussion} 
         The meaning of results, the future of the topic, error covering
       \end{block}
+
       \begin{block}{Conclusions}
         a re-hash of the second part of discussion?
       \end{block}
+
       \begin{block}{Acknowledgments}
         Thanks Dr.~P\'adraig~Cunningham
       \end{block}
