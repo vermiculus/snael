@@ -1,66 +1,6 @@
 \documentclass{beamer}
-\usepackage[english]{babel}
 
-\makeatletter
-\newcommand\HUGE{\@setfontsize\Huge{96}{115}}
-\makeatother
-
-\usepackage[orientation=portrait,size=a0]{beamerposter}
-\mode<presentation>{%
-  \usetheme{Frankfurt}%
-}
-
-\hypersetup{
-    pdftitle={Social Network Analysis of English Literature},
-    pdfauthor={Sean Allred},
-    pdfsubject={Natural Language Processing},
-    pdfkeywords={nlp} {computer} {science} {conference} {poster},
-    colorlinks=true,
-    linkcolor=black,
-    citecolor=black,
-    filecolor=black,
-    urlcolor=black}
-
-\newcommand{\llogo}{\includegraphics[height=11.88cm]{ucd}}
-\newcommand{\rlogo}{\includegraphics[height=11.88cm]{ucd}}
-
-\setbeamerfont{block title}{size=\LARGE}
-\setbeamersize{text margin left = -5pt, text margin right = -5pt}
-
-\addtobeamertemplate{block end}{}{\vskip 10ex plus 1ex minus 1ex}
-
-\title[S. N. A. E. L.]{%
-\texorpdfstring{\parbox{.25\textwidth}{\centering\llogo}%
-\parbox{.5\textwidth}{\centering\HUGE Social Network Analysis of English Literature}%
-\parbox{.25\textwidth}{\centering\rlogo}}{Real Title}}
-\author{\Huge Sean Allred}
-\institute{\Large University College Dublin\\\large Department of Computer Science and Informatics%
-%\\\large Scoil na R\'iomheola\'iochta agus Faisn\'eis\'iochta, An Col\'aiste Ollscoile, Baile \'Atha Cliath
-}
-\date{\Large 26 April 2013}
-
-% \title[SNAIL]{\HUGE Social Network Analysis of English Literature}
-% \makeatletter
-% \addtobeamertemplate{title page}{%
-%     \let\beamerorig@inserttitle\inserttitle%
-%     \renewcommand{\inserttitle}{%
-%        \parbox{0.20\textwidth}{\centering\llogo}
-%        \parbox{0.5 \textwidth}{\centering\beamerorig@inserttitle}
-%        \parbox{0.20\textwidth}{\centering\rlogo}
-%     }
-% }{}
-% \makeatother
-
-
-\usepackage{acro}
-\DeclareAcronym{nlp}{
-  short= NLP,
-  long= Natural Language Processing}
-\DeclareAcronym{nltk}{
-  short= NLTK,
-  long= Natural Language Processing Toolkit}
-
-\newcommand{\topic}[1]{\textsl{#1}}
+\usepackage{mypostersetup}
 
 \begin{document}
 \begin{frame}[t]{}
@@ -74,23 +14,38 @@
     \begin{column}{.45\textwidth}
       \begin{block}{Introduction}
         %What has currently been done, what is it good for, what are
-        %you trying to do, start with the general, going into specifics
-        Computer science is a \emph{very} broad topic, covering
-        everything from the stereotypical to the incredibly novel, and
-        the entire study is growing exponentially\footnote{Ha!  Puns!}
-        fast.  Those which were once chased as a pipe-dreams and
-        featured in science fictions has, in many cases, become
-        realized in an industry-grade implementation.  However, not
-        all pipe-dreams have become reality so quickly.
+        %you trying to do, start with the general, going into
+        %specifics
 
-        \ac{nlp} is one such growing subfield of computer science that
-        would enable a computer, through some algorithm, to ingest and
-        interact with human language.  This is distinct from speech
-        recognition, in which the goal is to transform spoken language
-        into text, but not necessarily understand it.
+        Computer science is more than just programming software for
+        industry; a great portion of `research in computer science' is
+        actually that of algorithms, of complexity theory, and of
+        human-computer interaction.
 
-        A further (major) subfield of \ac{nlp} is \topic{named entity
-          recognition}
+        What is \ac{nlp}?  \Ac{nlp} is an incredibly broad topic with
+        tens of subfields, but here are some highlights for the
+        current research:
+
+        \begin{description}[\Ac{ner}\acreset{ner}]
+        \item[Part-of-Speech Tagging] tries to recognize the
+          syntactical positions of words in a sentence
+        \item[\Ac{ner}] identifies nouns in a text and categorizes
+          them into groups (e.g.~location, organization, person, \dots)
+        \item[Coreference resolution] deals with aliases of entities
+          (both proper and common) in a text
+        \end{description}
+
+        Why study \ac{nlp}?  \Ac{nlp} is a significant part of
+        human-computer interaction.
+
+        \begin{itemize}
+        \item Automated telephone dispatchers (i.e. voice-jail) try to
+          hear,\footnote{speech recognition}
+          understand,\footnote{\ac{nlp}} and resolve\footnote{\ac{nlp}
+            $+$ natural language \emph{generation}} your spoken
+          request
+        \end{itemize}
+
       \end{block}
 
 % ILLUSTRATION:
@@ -104,7 +59,12 @@
 % -> Linguistics
 
       \begin{block}{Objective}
-        doodaa
+        \begin{itemize}
+        \item Read text
+        \item Recognize names
+        \item Relate aliases
+        \item Reveal co-occurrences
+        \end{itemize}
       \end{block}
 
       \begin{block}{Methods}

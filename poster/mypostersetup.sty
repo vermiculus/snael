@@ -1,0 +1,78 @@
+% I need mah title HUGE, bro
+\newcommand\HUGE{\@setfontsize\Huge{96}{115}}
+
+% title, author, institute, and date
+% \texorpdfstring helps with metadata
+\title[S. N. A. E. L.]{\texorpdfstring
+{\parbox{.25\textwidth}{\centering\llogo}%
+\parbox{.5\textwidth}{\centering\HUGE\titletext}%
+\parbox{.25\textwidth}{\centering\rlogo}}{\titletext}}
+\author{\Huge Sean Allred}
+\institute{\Large University College Dublin\\\large Department of Computer Science and Informatics%
+%\\\large Scoil na R\'iomheola\'iochta agus Faisn\'eis\'iochta, An Col\'aiste Ollscoile, Baile \'Atha Cliath
+}
+\date{\Large \nth{26} April 2013}
+
+% A few acronyms
+\usepackage{acro}
+\DeclareAcronym{nlp}{
+  short = NLP,
+  long  = natural language processing}
+\DeclareAcronym{nltk}{
+  short = NLTK,
+  long  = Natural Language Toolkit}
+\DeclareAcronym{ner}{
+  short = NER,
+  long  = named entity recognition}
+
+% Yes, this is a poster.
+\usepackage[orientation=portrait,size=a0]{beamerposter}
+\mode<presentation>{%
+  \usetheme{Frankfurt}%
+%  \usecolortheme{rose}%
+}
+
+% Everything needs to be BIGGER.  I'm blind.
+\setbeamerfont{block title}{size=\LARGE}
+
+% Awful hack to make the title box wider (to make it clean flush with
+% the page edge
+\setbeamersize{text margin left = -5pt, text margin right = -5pt}
+
+\addtobeamertemplate{block begin}
+  {}
+  {\setlength{\parskip}{24pt plus 1pt minus 1pt} % paragraph skipping
+   \vspace{1ex plus 0.5ex minus 0.5ex} % Top padding
+   \begin{adjustwidth}{1em}{1em}} % Due to the hack, fixes block margins
+
+\addtobeamertemplate{block end}
+  {\end{adjustwidth} % gotta end that environment
+   \vspace{2ex plus 0.5ex minus 0.5ex}} % and add some padding for the bottom
+  {\vspace{10ex plus 1ex minus 1ex}} % and some space between blocks
+
+\def\titletext{Social Network Analysis of English Literature}
+
+\usepackage[english]{babel}
+\usepackage[super]{nth}
+\usepackage{changepage}
+
+\hypersetup{
+    pdftitle={Social Network Analysis of English Literature},
+    pdfauthor={Sean Allred},
+    pdfsubject={Natural Language Processing},
+    pdfkeywords={nlp} {computer} {science} {conference} {poster},
+    colorlinks=true,
+    linkcolor=black,
+    citecolor=black,
+    filecolor=black,
+    urlcolor=black}
+
+\newcommand{\llogo}{\includegraphics[height=11.88cm]{ucd}}
+\newcommand{\rlogo}{\includegraphics[height=11.88cm]{ucd}}
+
+\newcommand{\topic}[1]{\textsl{#1}}
+
+%%% Local Variables:
+%%% TeX-PDF-mode: t
+%%% TeX-master: "poster.tex"
+%%% End:
