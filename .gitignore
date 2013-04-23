@@ -10,3 +10,5 @@ src/*
 
 # More secret-protecting.  Vector images can be extracted from PDF files quite simply.
 *.pdf
+
+!snael2.py

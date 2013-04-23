@@ -52,7 +52,7 @@
 
 \def\titletext{Social Network Analysis of English Literature}
 
-\usepackage[english]{babel}
+\usepackage[english,british]{babel}
 \usepackage[super]{nth}
 \usepackage{changepage}
 
@@ -61,16 +61,27 @@
     pdfauthor={Sean Allred},
     pdfsubject={Natural Language Processing},
     pdfkeywords={nlp} {computer} {science} {conference} {poster},
-    colorlinks=true,
-    linkcolor=black,
-    citecolor=black,
-    filecolor=black,
-    urlcolor=black}
+    colorlinks=true
+    ,linkcolor=black
+%    ,citecolor=black
+%    ,filecolor=black
+%    ,urlcolor=black%
+}
 
 \newcommand{\llogo}{\includegraphics[height=11.88cm]{ucd}}
 \newcommand{\rlogo}{\includegraphics[height=11.88cm]{ucd}}
 
 \newcommand{\topic}[1]{\textsl{#1}}
+
+% \usepackage{fancytikzposter}
+% \ClearShipoutPicture
+% \AddToShipoutPicture{\BackgroundPicture}
+
+
+
+\usepackage[style=apa]{biblatex}
+\DeclareLanguageMapping{british}{british-apa}
+
 
 %%% Local Variables:
 %%% TeX-PDF-mode: t

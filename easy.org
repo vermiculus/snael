@@ -17,6 +17,7 @@ Alderman, winning the 2009 BBC National Short Story Award, and is
 freely available on-line.
 
 #+BEGIN_SRC python :tangle "./src/snael.py"
+  #FILE_NAME = '../text/135.txt'
   FILE_NAME = '../text/simple.txt'
 #+END_SRC
 
@@ -73,6 +74,10 @@ from $A \to B$ is the same as adding a connection from $B \to A$).
               for name in self.names:
                   if name in sentence:
                       self.occurances.add(text.index(sentence))
+          try:
+              self.common_name = sorted(list(self.occurances))[0]
+          except:
+              self.common_name = 'Error:NoOccurance'
   
       def same(self, entity, threshold=.6):
           """Absorbs `entity` into self if `entity` and self are sufficiently
@@ -110,6 +115,82 @@ from $A \to B$ is the same as adding a connection from $B \to A$).
               r += "{%s}" % name
           r += "}"
           return r
+#+END_SRC
+* DONE This will take a while
+#+BEGIN_SRC python :tangle "./src/snael.py"
+  ## {{{ http://code.activestate.com/recipes/578228/ (r5)
+  import sys
+  
+  class ProgressBar:
+      def __init__(self, minValue = 0, maxValue = 100, totalWidth=75):
+          """ Initializes the progress bar. """
+          self.progBar = ""   # This holds the progress bar string
+          self.oldprogBar = ""
+          self.min = minValue
+          self.max = maxValue
+          self.span = maxValue - minValue
+          self.width = totalWidth
+          self.amount = 0       # When amount == max, we are 100% done 
+          self.updateAmount(0)  # Build progress bar string
+  
+      def appendAmount(self, append):
+          """ Increases the current amount of the value of append and 
+          updates the progress bar to new ammount. """
+          self.updateAmount(self.amount + append)
+      
+      def step(self):
+          self.appendAmount(1)
+      
+      def updatePercentage(self, newPercentage):
+          """ Updates the progress bar to the new percentage. """
+          self.updateAmount((newPercentage * float(self.max)) / 100.0)
+  
+      def updateAmount(self, newAmount = 0):
+          """ Update the progress bar with the new amount (with min and max
+          values set at initialization; if it is over or under, it takes the
+          min or max value as a default. """
+          if newAmount < self.min: newAmount = self.min
+          if newAmount > self.max: newAmount = self.max
+          self.amount = newAmount
+  
+          # Figure out the new percent done, round to an integer
+          diffFromMin = float(self.amount - self.min)
+          percentDone = (diffFromMin / float(self.span)) * 100.0
+          percentDone = int(round(percentDone))
+  
+          # Figure out how many hash bars the percentage should be
+          allFull = self.width - 2
+          numHashes = (percentDone / 100.0) * allFull
+          numHashes = int(round(numHashes))
+  
+          # Build a progress bar with an arrow of equal signs; special cases for
+          # empty and full
+          if numHashes == 0:
+              self.progBar = "[>%s]" % (' '*(allFull-1))
+          elif numHashes == allFull:
+              self.progBar = "[%s]" % ('='*allFull)
+          else:
+              self.progBar = "[%s>%s]" % ('='*(numHashes-1), ' '*(allFull-numHashes))
+  
+          # figure out where to put the percentage, roughly centered
+          percentPlace = (len(self.progBar) / 2) - len(str(percentDone))
+          percentString = str(percentDone) + "%"
+  
+          # slice the percentage into the bar
+          self.progBar = ' '.join([self.progBar, percentString])
+      
+      def draw(self):
+          """ Draws the progress bar if it has changed from it's previous value.  """
+          if self.progBar != self.oldprogBar:
+              self.oldprogBar = self.progBar
+              sys.stdout.write(self.progBar + '\r')
+              sys.stdout.flush()      # force updating of screen
+  
+      def __str__(self):
+          """ Returns the current progress bar. """
+          return str(self.progBar)
+  ## end of http://code.activestate.com/recipes/578228/ }}}
+  
 #+END_SRC
 
 * DONE Load Text
@@ -229,19 +310,8 @@ and has been modified to be clearer.
 
 #+BEGIN_SRC python :tangle "./src/snael.py"
   print '>tagging entire text'
-  progress_bar_width = 70
-  progress_bar_progress = 0
-
-  import sys
-
-  # Write out the bar
-  sys.stdout.write("[%s]" % (" " * progress_bar_width))
   
-  # Flush the output stream (force write)
-  sys.stdout.flush()
-  
-  # Return to the start of the bar
-  sys.stdout.write("\b" * (progress_bar_width+1))
+  tag_bar = ProgressBar(maxValue=len(text))
 #+END_SRC
 
 We prepare a list for the tagged sentences to be stored, and begin to
@@ -260,16 +330,10 @@ write), and then increment our progress through the progress bar.
 #+BEGIN_SRC python :tangle "./src/snael.py"
   tagged_sentences = list()
   
-  current_text_index = 0
-
   for sentence in text:
       tagged_sentences.append(entities(sentence))
-      current_text_index += 1
-      if float(current_text_index) / float(len(text)) > \
-         float(progress_bar_progress) / float(progress_bar_width):
-          sys.stdout.write('-')
-          sys.stdout.flush()
-          progress_bar_progress += 1
+      tag_bar.step()
+  
   print ''
   print '>Done.'
 #+END_SRC
@@ -319,11 +383,32 @@ accumulating the list of names.
   def get_names_from_text(text):
       """Extracts all names from a text.
       """
+      print '>tagging entire text'
+      progress_bar_width = 70
+      progress_bar_progress = 0
+      
+      import sys
+      
+      # Write out the bar
+      sys.stdout.write("[%s]" % (" " * progress_bar_width))
+      
+      # Flush the output stream (force write)
+      sys.stdout.flush()
+      
+      # Return to the start of the bar
+      sys.stdout.write("\b" * (progress_bar_width+1))
+      current_text_index = 0
   
       names = set()
   
       for sentence in text:
+          current_text_index += 1
           names = names.union(get_names_from_sentence(sentence))
+          if float(current_text_index) / float(len(text)) > \
+             float(progress_bar_progress) / float(progress_bar_width):
+              sys.stdout.write('-')
+              sys.stdout.flush()
+              progress_bar_progress += 1
   
       return list(names)
 #+END_SRC
@@ -482,75 +567,51 @@ Actually combine entities deemed to be the same
 
 * DONE Find Cooccurances
 #+BEGIN_SRC python :tangle "./src/snael.py"
+  import networkx as nx
+  network = nx.Graph()
+  
+  node_bar = ProgressBar(maxValue=len(people))
+  
+  
+  print '>Add nodes to graph'
+  for person in people:
+      network.add_node(person, label=person.common_name, weight=len(person.occurances))
+      node_bar.step()
+  print 'Done'
+  
   from itertools import combinations
   
+  print '>Generating combinations (patience)'
   pairs = combinations(people, 2)
+  print 'Done'
   
-  network = Network()
-  r = 5
+  # calculate number of combinations
+  from math import factorial as fact
+  num_pairs = fact(len(people))/(fact(len(people)-2)*2)
   
+  print 'Finding co-occurences'
+  edge_bar = ProgressBar(maxValue=num_pairs)
+  
+  radius = 5
   for A, B in pairs:
       for oA in A.occurances:
           for oB in B.occurances:
-              if oB in range(oA-r, oA+r):
-                  network.addConnection(A, B)
+              if oB in range(oA-radius, oA+radius):
+                  try:
+                      network.edge[A.common_name][B.common_name]['weight'] += 1
+                  except:
+                      network.add_edge(A.common_name, B.common_name, weight=1)
+              edge_bar.step()
 #+END_SRC
 
 * DONE Output
-** DONE Requirements
-The output of this program is a list of name-name-weight tuples.
-Since it is very possible that characters go by several names, the
-very first name encountered will be used (if such aliases are
-resolved at all).
+With the use of NetworkX, output is extremely simple.
 
-The output is a plain text file that denotes detected aliases and
-relationships.  All names are enclosed in a TeX-style group,
-i.e. ={}=.  Aliases are a group of names set off by a bang (=!=).
-Relationships are not set off so, and will always end in the strength
-of the relationship.
-
-Here is a contrived excerpt of ideal output obtained from a run on
-Victor Hugo's Les Miserables: (note the actual values for weights in
-the example are arbitrary)
-#+BEGIN_EXAMPLE
-  {!{Jean Valjean}
-    {Monsieur Madeleine}
-    {Ultime Fauchelevent}
-    {Monsieur Leblanc}
-    {Urbain Fabre}}
-  {!{Javert}}
-  {!{Cosette}
-    {Euphrasie}
-    {the Lark}
-    {Medemoiselle Lanoire}
-    {Ursula}}
-  ...
-  {{Jean Valjean}{Jondrette}{540}}
-  {{Jean Valjean}{Javert}{550}}
-  ...
-#+END_EXAMPLE
-** DONE Implementation
 #+BEGIN_SRC python :tangle "./src/snael.py"
-  print '>writing output'
-  with open(FILE_NAME+'.processed.raw','w') as f:
-      f.write(str(network))
-  
-  with open(FILE_NAME+'.processed.gephi','w') as f:
-      mapping = list(people)
-  
-      raw = str(network)
-  
-      for person in mapping:
-          raw = raw.replace(str(person), str(mapping.index(person)))
-  
-      raw = raw.replace('{{','')
-      raw = raw.replace('}{','\t')
-      raw = raw.replace('}}','')
-  
-      for person in mapping:
-          f.write('%s=%s\n' % (str(mapping.index(person)), str(person)))
-  
-      raw = ''.join(sorted(raw.splitlines(True)))
-  
-      f.write(raw)
+  print 'Writing output...',
+  nx.write_gexf(network, 'network.gexf')
+  print 'Done.  Program complete.'
+
+  from time import gmtime, strftime
+  print strftime("%X", gmtime())
 #+END_SRC

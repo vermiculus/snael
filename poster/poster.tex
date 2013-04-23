@@ -1,9 +1,17 @@
 \documentclass{beamer}
 
 \usepackage{mypostersetup}
+\usepackage{listings,textcomp,xspace}
+
+\beamertemplategridbackground[29mm]
+
+\addbibresource{../../refs/nlp.bib}
+
+\newcommand{\Gephi}{\textit{Gephi}\xspace}
 
 \begin{document}
-\begin{frame}[t]{}
+
+\begin{frame}[t,fragile]{}
   \vskip -8pt
   \begin{beamercolorbox}{}
     \maketitle
@@ -13,18 +21,13 @@
   \begin{columns}
     \begin{column}{.45\textwidth}
       \begin{block}{Introduction}
-        %What has currently been done, what is it good for, what are
-        %you trying to do, start with the general, going into
-        %specifics
+        The current research focuses on a specific topic in computer
+        science called \ac{nlp}, briefly described as the study and
+        practice of interfacing human languages with that of machines.
 
-        Computer science is more than just programming software for
-        industry; a great portion of `research in computer science' is
-        actually that of algorithms, of complexity theory, and of
-        human-computer interaction.
-
-        What is \ac{nlp}?  \Ac{nlp} is an incredibly broad topic with
-        tens of subfields, but here are some highlights for the
-        current research:
+        \Ac{nlp} is an incredibly broad topic with tens of subfields,
+        but here are some highlights that are especially relevant to
+        the current research:
 
         \begin{description}[\Ac{ner}\acreset{ner}]
         \item[Part-of-Speech Tagging] tries to recognize the
@@ -35,17 +38,29 @@
           (both proper and common) in a text
         \end{description}
 
-        Why study \ac{nlp}?  \Ac{nlp} is a significant part of
-        human-computer interaction.
+        There are \emph{incredible} applications of \ac{nlp}, and it
+        is a significant part of human-computer interaction.  The
+        fantastic computers of the \textit{Star Trek} series portray
+        (contrived) displays of near-perfect \ac{nlp}.  While we are a
+        \emph{long} way off from this level of sophistication, we have
+        still come a long way from the pipe-dreams of the twentieth
+        century.
 
         \begin{itemize}
-        \item Automated telephone dispatchers (i.e. voice-jail) try to
-          hear,\footnote{speech recognition}
-          understand,\footnote{\ac{nlp}} and resolve\footnote{\ac{nlp}
-            $+$ natural language \emph{generation}} your spoken
-          request
+        \item Automated telephone dispatchers try to hear, understand,
+          and resolve your spoken request through speech recognition
+          and natural language processing/generation.
+        \item The ever popular \textit{Siri} program of Apple's iOS
+          uses natural language processing coupled with
+          \textit{machine learning}, gathering statistical data from
+          thousands upon thousands of users \parencite{lohr12:big-data-age}
+        \item The \textit{Google} web search engine uses natural
+          language processing to extract keywords and topics from the
+          web pages it indexes \parencite{ganchev12:search-logs-query-tagging}
+        \item The \textit{Wolfram Alpha} project (of Wolfram Research)
+          provides a natural language interface to a vast wealth of
+          information \parencite{press:wolfram09:wa-launch}
         \end{itemize}
-
       \end{block}
 
 % ILLUSTRATION:
@@ -59,22 +74,100 @@
 % -> Linguistics
 
       \begin{block}{Objective}
-        \begin{itemize}
-        \item Read text
-        \item Recognize names
-        \item Relate aliases
-        \item Reveal co-occurrences
-        \end{itemize}
-      \end{block}
+        The goal of this research was to investigate the potential of
+        using Python in conjuction with the
+        \ac{nltk} \parencite{bird09:nltk} to produce an easy-to-read
+        and extensible framework in which to analyse the social
+        networks between characters within English literature.
 
-      \begin{block}{Methods}
-        Source Listings, what a name is defined as
+        The end product is a text file containing three fields:
+        \vspace{1ex plus 0.1ex minus 0.1ex}
+        
+        \begin{lstlisting}[frame=shadowbox]
+          Character A, Character B, Number-of-Cooccurrences
+        \end{lstlisting}
+
+
+        \begin{itemize}
+        \item character
+        \item other character
+        \item number of co-occurrences
+        \end{itemize}
+
+        This file is to be processed by a separate visualization and
+        analytical program called \Gephi.
+
+        For example, processing a work such as \textit{Les
+          Mis\'erables} may produce the following (example) output:
+
+        \vspace{1ex plus 0.1ex minus 0.1ex}
+        
+        \begin{lstlisting}[frame=shadowbox]
+          Valjean, Cosette, 2000
+          Valjean, Marius,  1200
+          Valjean, Javert,   650
+          Fantine, Javert,   250
+          ......................
+        \end{lstlisting}
+
+        which would produce something similar to following:
+
+        \includegraphics[width=.9\textwidth]{lesm-net}
       \end{block}
     \end{column}
 
     \begin{column}{.45\textwidth}
+
+      \begin{block}{Methods}
+
+        \begin{enumerate}
+        \item To begin the project, the \ac{nltk} (written by
+          \cite{bird09:nltk}) was used to tag each sentence from the
+          entire text, a process that takes a comparatively significant
+          amount of time.
+          
+          In addition to its normal procedures, I further defined to the
+          \ac{nltk} what it should recognize as a \emph{name} by means
+          of a \emph{regular expression}, a pattern by which to
+          recognize the name.
+          \medskip
+          \begin{lstlisting}[language=Python,
+                             basicstyle=\ttfamily,
+                             frame=shadowbox]
+            grammar = r'NAME: {<NNP>+(<DT>?<NNP>+)?}'
+          \end{lstlisting}
+          This grammar defines a \lstinline!NAME! to be one or more
+          proper nouns optionally followed by an optional determiner and
+          one or more other proper nouns.
+          Simply, this grammar will recognize
+          \medskip
+          \begin{lstlisting}[frame=shadowbox]
+            John Adams
+            Alexander the Great
+            William
+          \end{lstlisting}
+          all as \lstinline!NAME!s.
+
+        \item Once everything is tagged, the names are stripped from
+          the text and a simple algorithm is written to combine two
+          names:
+          \begin{enumerate}
+          \item If they are the exact same name,
+          \item If one name contains the other (e.g. \textsl{Alan}
+            vs. \textsl{Alan Turing}), or
+          \item If the two names are sufficiently statistically
+            similar (using $n$-grams), they are the same.
+          \end{enumerate}
+        \item Now that we have a rough idea for how a person is
+          referred to, we scan the text for co-references and output
+          to a text file for processing by \Gephi.
+        \end{enumerate}
+      \end{block}
+
       \begin{block}{Results}
-        I am \emph{not} qualified to draw conclusions.  Ha!
+        The full output is far too verbose, so I present what \Gephi
+        gives as output for comparison with the `official' network on
+        the bottom left. 4:31;26--4:56;30 -- +30 for co-
       \end{block}
 
       \begin{block}{Discussion} 
@@ -85,8 +178,11 @@
         a re-hash of the second part of discussion?
       \end{block}
 
-      \begin{block}{Acknowledgments}
-        Thanks Dr.~P\'adraig~Cunningham
+      \begin{block}{References}
+        \centering
+        \begin{minipage}{.9\linewidth}
+          \printbibliography
+        \end{minipage}
       \end{block}
     \end{column}
   \end{columns}
