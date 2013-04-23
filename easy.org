@@ -4,6 +4,7 @@
 
 #+BEGIN_SRC python :tangle "./src/snael.py"
   print "Welcome to SNAEL, version 0.3"
+  difficuluty = 0
 #+END_SRC
 
 * DONE What are we Studying?
@@ -17,49 +18,15 @@ Alderman, winning the 2009 BBC National Short Story Award, and is
 freely available on-line.
 
 #+BEGIN_SRC python :tangle "./src/snael.py"
-  #FILE_NAME = '../text/135.txt'
-  FILE_NAME = '../text/simple.txt'
-#+END_SRC
+  from time import gmtime, strftime
+  print strftime("%X", gmtime())
 
-* DONE Wait, what is a Network?
-A network is a graph---it is a collection of entities (usually called
-'nodes') that are connected to each other in certain ways.
+  available_texts = ['../text/' + i for i in \
+                   ['simple.txt', # BBC 2009 national
+                    'highwayman.txt', # http://fiction.homepageofthedead.com/forum.pl?readfiction=1047H
+                    '135.txt']] # Les Miserables
 
-For the purposes of this research, the following =Network= class
-defines a consistent interface for accumulating a weighted graph.
-
-A =Network= has exactly one field, a dictionary of associations.  The
-dictionary uses entities (must be hash-able, e.g. strings) as keys and
-one more dictionary as values.  This inner dictionary maps entities
-onto weights.  Care has been taken to ensure that new entities are
-appropriately handled and connections are two-way (adding a connection
-from $A \to B$ is the same as adding a connection from $B \to A$).
-#+BEGIN_SRC python :tangle "./src/snael.py"
-  class Network:
-      def __init__(self):
-          self.associations = dict()
-      def addConnection(self, entityA, entityB):
-          if entityA not in self.associations:
-              self.associations[entityA]=dict()
-          if entityB not in self.associations:
-              self.associations[entityB]=dict()
-  
-          if entityA not in self.associations[entityB]:
-              self.associations[entityB][entityA] = 0
-          if entityB not in self.associations[entityA]:
-              self.associations[entityA][entityB] = 0
-  
-          self.associations[entityA][entityB] += 1
-          self.associations[entityB][entityA] += 1
-      def __str__(self):
-          relations = set()
-          assoc = self.associations
-          for name in assoc.keys():
-              for other in assoc[name].keys():
-                  relations.add("{{%s}{%s}{%s}}" % \
-                                (str(name), str(other), \
-                                str(assoc[name][other])))
-          return '\n'.join(relations)
+  FILE_NAME = available_texts[difficulty]
 #+END_SRC
 
 * DONE Entities?
@@ -67,15 +34,16 @@ from $A \to B$ is the same as adding a connection from $B \to A$).
   class Entity:
       def __init__(self, name):
           self.names = set([name])
-          self.occurances = set()
+          self.occurances = list()
   
       def find_occurances(self, text):
           for sentence in text:
               for name in self.names:
                   if name in sentence:
                       self.occurances.add(text.index(sentence))
+          self.occurances = sorted(self.occurances)
           try:
-              self.common_name = sorted(list(self.occurances))[0]
+              self.common_name = self.occurances[0]
           except:
               self.common_name = 'Error:NoOccurance'
   
@@ -138,8 +106,10 @@ from $A \to B$ is the same as adding a connection from $B \to A$).
           updates the progress bar to new ammount. """
           self.updateAmount(self.amount + append)
       
-      def step(self):
+      def step(self, autodraw=False):
           self.appendAmount(1)
+          if autodraw:
+              self.draw()
       
       def updatePercentage(self, newPercentage):
           """ Updates the progress bar to the new percentage. """
@@ -183,7 +153,8 @@ from $A \to B$ is the same as adding a connection from $B \to A$).
           """ Draws the progress bar if it has changed from it's previous value.  """
           if self.progBar != self.oldprogBar:
               self.oldprogBar = self.progBar
-              sys.stdout.write(self.progBar + '\r')
+              sys.stdout.write('\b'*len(self.progBar)+self.progBar)
+              ## sys.stdout.write(self.progBar + '\r')
               sys.stdout.flush()      # force updating of screen
   
       def __str__(self):
@@ -199,7 +170,7 @@ memory.  This snippet of code opens =FILE_NAME= as read-only and loads
 the full contents into =raw=.
 #+BEGIN_SRC python :tangle "./src/snael.py"
   with open(FILE_NAME, 'r') as f:
-      print '>reading file'
+      print '>reading file: ' + FILE_NAME
       raw = ''.join(f.readlines())
       print '>file read'
 #+END_SRC
@@ -332,7 +303,7 @@ write), and then increment our progress through the progress bar.
   
   for sentence in text:
       tagged_sentences.append(entities(sentence))
-      tag_bar.step()
+      tag_bar.step(autodraw=True)
   
   print ''
   print '>Done.'
@@ -384,31 +355,13 @@ accumulating the list of names.
       """Extracts all names from a text.
       """
       print '>tagging entire text'
-      progress_bar_width = 70
-      progress_bar_progress = 0
-      
-      import sys
-      
-      # Write out the bar
-      sys.stdout.write("[%s]" % (" " * progress_bar_width))
-      
-      # Flush the output stream (force write)
-      sys.stdout.flush()
-      
-      # Return to the start of the bar
-      sys.stdout.write("\b" * (progress_bar_width+1))
-      current_text_index = 0
-  
+            
+      name_bar = ProgressBar(maxValue=len(text))  
       names = set()
   
       for sentence in text:
-          current_text_index += 1
           names = names.union(get_names_from_sentence(sentence))
-          if float(current_text_index) / float(len(text)) > \
-             float(progress_bar_progress) / float(progress_bar_width):
-              sys.stdout.write('-')
-              sys.stdout.flush()
-              progress_bar_progress += 1
+          name_bar.step(autodraw=True)
   
       return list(names)
 #+END_SRC
@@ -505,8 +458,10 @@ Unfortunately, I'm not smart enough to do this.  Ho hum.
 * DONE Find Occurances
 #+BEGIN_SRC python :tangle "./src/snael.py"
   people = [Entity(name) for name in names]
+  occur_bar = ProgressBar(maxBalue=len(people))
   for person in people:
       person.find_occurances(text)
+      occur_bar.step(autodraw=True)
 #+END_SRC
 
 * DONE Resolve Aliases
@@ -556,8 +511,11 @@ Sort by most popular names
 Actually combine entities deemed to be the same
 #+BEGIN_SRC python :tangle "./src/snael.py"
   from itertools import combinations
+  dup_pairs = list(combinations(people, 2))
 
-  for entity1, entity2 in combinations(people, 2):
+  dup_bar = ProgressBar(maxValue=len(dup_pairs))
+  for entity1, entity2 in dup_pairs:
+      dup_bar.step(autodraw=True)
       if entity1.same(entity2):
           again = True
           entity1.absorb(entity2)
@@ -576,32 +534,44 @@ Actually combine entities deemed to be the same
   print '>Add nodes to graph'
   for person in people:
       network.add_node(person, label=person.common_name, weight=len(person.occurances))
-      node_bar.step()
+      node_bar.step(autodraw=True)
   print 'Done'
   
   from itertools import combinations
   
-  print '>Generating combinations (patience)'
-  pairs = combinations(people, 2)
-  print 'Done'
-  
-  # calculate number of combinations
-  from math import factorial as fact
-  num_pairs = fact(len(people))/(fact(len(people)-2)*2)
+  pairs = list(combinations(people, 2))
   
   print 'Finding co-occurences'
-  edge_bar = ProgressBar(maxValue=num_pairs)
+  edge_bar = ProgressBar(maxValue=len(pairs))
   
   radius = 5
   for A, B in pairs:
-      for oA in A.occurances:
-          for oB in B.occurances:
-              if oB in range(oA-radius, oA+radius):
-                  try:
+      i = 0
+      a = sorted(list(A.occurances))
+      b = sorted(list(B.occurances))
+      if len(a) is 0 or len(b) is 0:
+          edge_bar.step(autodraw=True)
+          continue
+      maxi = len(B.occurances) - 1
+      for oA in a:
+          lo = oA - radius
+          hi = oA + radius
+          while (b[i] > lo) and (i > 0):     # while we're above the low end of the range
+              i = i - 1                      #   go towards the low end of the range
+          while (b[i] < lo) and (i < maxi):  # while we're below the low end of the range
+              i = i + 1                      #   go towards the low end of the range
+          if b[i] >= lo:
+              while (b[i] <= hi):            # while we're below the high end of the range
+                  try:                       #   increase edge weight
                       network.edge[A.common_name][B.common_name]['weight'] += 1
                   except:
                       network.add_edge(A.common_name, B.common_name, weight=1)
-              edge_bar.step()
+                      
+                  if i < maxi:               #   and go towards the high end of the range
+                      i = i + 1
+                  else:
+                      break
+      edge_bar.step(autodraw=True)
 #+END_SRC
 
 * DONE Output
@@ -609,9 +579,14 @@ With the use of NetworkX, output is extremely simple.
 
 #+BEGIN_SRC python :tangle "./src/snael.py"
   print 'Writing output...',
-  nx.write_gexf(network, 'network.gexf')
+  def getname(filepath):
+      b = filepath.rfind('/') + 1
+      e = filepath.rfind('.')
+      return filepath[b:e]
+      
+  nx.write_gexf(network, 'network-{}.gexf'.format(getname(FILE_NAME)))
   print 'Done.  Program complete.'
-
+  
   from time import gmtime, strftime
   print strftime("%X", gmtime())
 #+END_SRC

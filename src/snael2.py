@@ -1,3 +1,4 @@
+difficulty = 0
 
 print "Welcome to SNAEL, version 1.0"
 
@@ -5,37 +6,11 @@ from time import gmtime, strftime
 print strftime("%X", gmtime())
 
 available_texts = ['../text/' + i for i in \
-                   ['highwayman.txt', # http://fiction.homepageofthedead.com/forum.pl?readfiction=1047H
-                    'simple.txt', # BBC 2009 national
+                   ['simple.txt', # BBC 2009 national
+                    'highwayman.txt', # http://fiction.homepageofthedead.com/forum.pl?readfiction=1047H
                     '135.txt']] # Les Miserables
 
-FILE_NAME = available_texts[2]
-
-class Network:
-    def __init__(self):
-        self.associations = dict()
-    def addConnection(self, entityA, entityB):
-        if entityA not in self.associations:
-            self.associations[entityA]=dict()
-        if entityB not in self.associations:
-            self.associations[entityB]=dict()
-
-        if entityA not in self.associations[entityB]:
-            self.associations[entityB][entityA] = 0
-        if entityB not in self.associations[entityA]:
-            self.associations[entityA][entityB] = 0
-
-        self.associations[entityA][entityB] += 1
-        self.associations[entityB][entityA] += 1
-    def __str__(self):
-        relations = set()
-        assoc = self.associations
-        for name in assoc.keys():
-            for other in assoc[name].keys():
-                relations.add("{{%s}{%s}{%s}}" % \
-                              (str(name), str(other), \
-                              str(assoc[name][other])))
-        return '\n'.join(relations)
+FILE_NAME = available_texts[difficulty]
 
 class Entity:
     def __init__(self, name):
@@ -179,6 +154,7 @@ if __name__ == '__main__':
     print '>converting to nltk.Text'
     text = nltk.Text(tokens)
 
+
     grammer = r'NAME: {<NNP>+(<DT>?<NNP>+)?}'
     ne_chunker = nltk.RegexpParser(grammer)
     entities = lambda text: \
@@ -292,34 +268,66 @@ if __name__ == '__main__':
 
     from itertools import combinations
 
-    print '>Generating combinations...',
     pairs = list(combinations(people, 2))
-    print 'Done'
-
-    # calculate time
-    total_steps = 0
-    for a,b in pairs:
-        total_steps += len(a.occurances)*len(b.occurances)
 
     print 'Finding co-occurences'
-    edge_bar = ProgressBar(maxValue=total_steps)
-    
+    edge_bar = ProgressBar(maxValue=len(pairs))
+
+
     radius = 5
     for A, B in pairs:
-        for oA in A.occurances:
-            for oB in B.occurances:
-                if oB > oA + radius + 1:
-                    break
-                if oB in range(oA-radius, oA+radius):
-                    try:
+        i = 0
+        a = sorted(list(A.occurances))
+        b = sorted(list(B.occurances))
+        if len(a) is 0 or len(b) is 0:
+            edge_bar.step()
+            edge_bar.draw()
+            continue
+        maxi = len(B.occurances) - 1
+        for oA in a:
+            lo = oA - radius
+            hi = oA + radius
+            while (b[i] > lo) and (i > 0):     # while we're above the low end of the range
+                i = i - 1                      #   go towards the low end of the range
+            while (b[i] < lo) and (i < maxi):  # while we're below the low end of the range
+                i = i + 1                      #   go towards the low end of the range
+            if b[i] >= lo:
+                while (b[i] <= hi):            # while we're below the high end of the range
+                    try:                       #   increase edge weight
                         network.edge[A.common_name][B.common_name]['weight'] += 1
                     except:
                         network.add_edge(A.common_name, B.common_name, weight=1)
-                edge_bar.step()
+
+                    if i < maxi:               #   and go towards the high end of the range
+                        i = i + 1
+                    else:
+                        break
+        edge_bar.step()
         edge_bar.draw()
+    # radius = 5
+    # for A, B in pairs:
+    #     for oA in A.occurances:
+    #         for oB in B.occurances:
+    #             if oB > oA + radius + 1:
+    #                 break
+    #             if oB in range(oA-radius, oA+radius):
+    #                 try:
+    #                     network.edge[A.common_name][B.common_name]['weight'] += 1
+    #                 except:
+    #                     network.add_edge(A.common_name, B.common_name, weight=1)
+    #             edge_bar.step()
+    #     edge_bar.draw()
+
+    
 
     print 'Writing output...',
-    nx.write_gexf(network, 'network-lesm.gexf')
+
+    def getname(filepath):
+        b = filepath.rfind('/') + 1
+        e = filepath.rfind('.')
+        return filepath[b:e]
+
+    nx.write_gexf(network, 'network-{}.gexf'.format(getname(FILE_NAME)))
     print 'Done.  Program complete.'
 
     from time import gmtime, strftime
