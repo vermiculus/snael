@@ -16,7 +16,10 @@
   \begin{beamercolorbox}{}
     \maketitle
   \end{beamercolorbox}
-  \vskip 10ex
+  \vskip 5ex
+
+  \addtolength{\labelsep}{0.5em}
+
 
   \begin{columns}
     \begin{column}{.45\textwidth}
@@ -30,6 +33,7 @@
         the current research:
 
         \begin{description}[\Ac{ner}\acreset{ner}]
+          \addtolength{\itemsep}{2ex}
         \item[Part-of-Speech Tagging] tries to recognize the
           syntactical positions of words in a sentence
         \item[\Ac{ner}] identifies nouns in a text and categorizes
@@ -47,6 +51,7 @@
         century.
 
         \begin{itemize}
+          \addtolength{\itemsep}{1ex}
         \item Automated telephone dispatchers try to hear, understand,
           and resolve your spoken request through speech recognition
           and natural language processing/generation.
@@ -80,47 +85,16 @@
         and extensible framework in which to analyse the social
         networks between characters within English literature.
 
-        The end product is a text file containing three fields:
-        \vspace{1ex plus 0.1ex minus 0.1ex}
-        
-        \begin{lstlisting}[frame=shadowbox]
-          Character A, Character B, Number-of-Cooccurrences
-        \end{lstlisting}
-
-
-        \begin{itemize}
-        \item character
-        \item other character
-        \item number of co-occurrences
-        \end{itemize}
-
-        This file is to be processed by a separate visualization and
+        The end product is a \ac{gexf} file representing every
+        identified character as a single node and every identified
+        connection as an edge, weighted according to the perceived
+        strength of the connection based upon co-occurances.  This
+        file is to be processed by a separate visualization and
         analytical program called \Gephi.
-
-        For example, processing a work such as \textit{Les
-          Mis\'erables} may produce the following (example) output:
-
-        \vspace{1ex plus 0.1ex minus 0.1ex}
-        
-        \begin{lstlisting}[frame=shadowbox]
-          Valjean, Cosette, 2000
-          Valjean, Marius,  1200
-          Valjean, Javert,   650
-          Fantine, Javert,   250
-          ......................
-        \end{lstlisting}
-
-        which would produce something similar to following:
-
-        \includegraphics[width=.9\textwidth]{lesm-net}
       \end{block}
-    \end{column}
-
-    \begin{column}{.45\textwidth}
-
       \begin{block}{Methods}
-
         \begin{enumerate}
+          \addtolength{\itemsep}{1ex}
         \item To begin the project, the \ac{nltk} (written by
           \cite{bird09:nltk}) was used to tag each sentence from the
           entire text, a process that takes a comparatively significant
@@ -136,54 +110,100 @@
                              frame=shadowbox]
             grammar = r'NAME: {<NNP>+(<DT>?<NNP>+)?}'
           \end{lstlisting}
-          This grammar defines a \lstinline!NAME! to be one or more
-          proper nouns optionally followed by an optional determiner and
-          one or more other proper nouns.
-          Simply, this grammar will recognize
+          This grammar defines a \texttt{NAME} to be one or more
+          proper nouns optionally followed by an optional determiner
+          and one or more other proper nouns.  Simply, this grammar
+          will recognize names like these:
           \medskip
           \begin{lstlisting}[frame=shadowbox]
             John Adams
             Alexander the Great
             William
           \end{lstlisting}
-          all as \lstinline!NAME!s.
 
         \item Once everything is tagged, the names are stripped from
           the text and a simple algorithm is written to combine two
           names:
           \begin{enumerate}
-          \item If they are the exact same name,
+          \item If they are the exact same name, or
           \item If one name contains the other (e.g. \textsl{Alan}
-            vs. \textsl{Alan Turing}), or
-          \item If the two names are sufficiently statistically
-            similar (using $n$-grams), they are the same.
+            vs. \textsl{Alan Turing}).
+          %\item If the two names are sufficiently statistically
+          %  similar (using $n$-grams), they are the same.
           \end{enumerate}
         \item Now that we have a rough idea for how a person is
           referred to, we scan the text for co-references and output
           to a text file for processing by \Gephi.
         \end{enumerate}
       \end{block}
-
-      \begin{block}{Results}
-        The full output is far too verbose, so I present what \Gephi
-        gives as output for comparison with the `official' network on
-        the bottom left. 4:31;26--4:56;30 -- +30 for co-
-      \end{block}
-
-      \begin{block}{Discussion} 
-        The meaning of results, the future of the topic, error covering
-      \end{block}
-
-      \begin{block}{Conclusions}
-        a re-hash of the second part of discussion?
-      \end{block}
-
       \begin{block}{References}
         \centering
         \begin{minipage}{.9\linewidth}
           \printbibliography
         \end{minipage}
       \end{block}
+
+    \end{column}
+
+    \begin{column}{.45\textwidth}
+
+
+      \begin{block}{Results: \textit{Les Mis\'erables}}
+        The full output is far too verbose, so I present what \Gephi
+        gives as output for comparison with the `official' network on
+        the bottom left.  Generation time: (less \ac{nltk}) 00:07:26.
+
+        \begin{centering}
+          \includegraphics[width=.5\linewidth]{lesm-net}
+          \includegraphics[width=.5\linewidth]{lesm-mynet}\\
+          \rule{3.5cm}{0cm}Model \Gephi graph (hand-made) \hfill
+          Program-generated graph\rule{4cm}{0cm}
+        \end{centering}
+
+      \end{block}
+
+      \begin{block}{Discussion} 
+        The meaning of results, the future of the topic, error covering
+
+        The above represents a manually `cleaned' version of the
+        original output.  This program relies on \ac{nltk} to
+        accurately identify names, and \ac{nltk} is far from perfect.
+        It often recognized single letters and chapter headings as
+        full names, and (most disruptively) recognized the
+        capitalizations of several smaller words, such as
+        \texttt{The}, \texttt{Then}, \texttt{An}, and \texttt{A}.  The
+        most disruptive of these were removed from the output before
+        processing by \Gephi, although example ones remain
+        (\texttt{Made}, \texttt{Car}, \texttt{That}, \texttt{him.},
+        etc.).  And, of course, there were plenty of typos (such as
+        \texttt{M..}).  To visually reduce the noise, the top 25
+        (4.3\%) out of 584 results were selected for output, along
+        with their 329 (0.05\%) out of 61938 related edges.
+
+        While it must be recognized that the model graph was created
+        by hand occording to human interpretation of the text, it is
+        obvious that \ac{nlp} (\ac{nltk} in particular) has a long way
+        to go before it is reliable enough for this purpose and
+        implementation.  That being said, there are several things
+        this program can improve upon, such as
+        \begin{itemize}
+          \addtolength{\itemsep}{1ex}
+        \item the definition of a name,
+        \item handling of aliases (the current implementation does not well account for this), and 
+        \end{itemize}
+        and several things it simply did not account for, such as
+        \begin{itemize}
+          \addtolength{\itemsep}{1ex}
+        \item complete psuedonyms (\textsl{Dracula} vs. \textsl{the Count}),
+        \item relative reference; i.e. the use of pronouns in dialogue, and
+        \item 
+        \end{itemize}
+      \end{block}
+
+      \begin{block}{Conclusions}
+        a re-hash of the second part of discussion?
+      \end{block}
+
     \end{column}
   \end{columns}
 \end{frame}
